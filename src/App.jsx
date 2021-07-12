@@ -3,9 +3,14 @@ import Navbar from "./Components/navbar.jsx";
 
 function App() {
   return (
-    <div className="App">
-      <Navbar />
-    </div>
+    <Router>
+      <Switch>
+        <div className="App">
+          <Navbar />
+          <Route path="/register" />
+        </div>
+      </Switch>
+    </Router>
   );
 }
 
