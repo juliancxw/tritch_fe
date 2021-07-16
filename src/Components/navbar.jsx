@@ -22,6 +22,9 @@ const useStyles = makeStyles((theme) => ({
 export default function Navbar() {
   const classes = useStyles();
 
+  // check for jwt token in cookie
+  let authToken;
+
   return (
     <div className={classes.root}>
       <AppBar style={{ background: "#673ab7" }} position="static">
@@ -32,13 +35,32 @@ export default function Navbar() {
             color="inherit"
             aria-label="menu"
           ></IconButton>
-          <Typography variant="h6" className={classes.title}>
+          <Typography
+            component={Link}
+            style={{ textDecoration: "none" }}
+            to="/"
+            variant="h6"
+            color="inherit"
+            className={classes.title}
+          >
             TRITCH
           </Typography>
           <Button color="inherit">Trip Planner</Button>
           <Button color="inherit">Be Inspired</Button>
-          <Button color="inherit">Login</Button>
-          <Button color="inherit">Register</Button>
+          {authToken ? (
+            <Button component={Link} to="/logout" color="inherit">
+              Logout
+            </Button>
+          ) : (
+            <div className="unauthenticatedOnly">
+              <Button component={Link} to="/login" color="inherit">
+                Login
+              </Button>
+              <Button component={Link} to="/register" color="inherit">
+                Register
+              </Button>
+            </div>
+          )}
         </Toolbar>
       </AppBar>
     </div>
