@@ -27,7 +27,7 @@ export default function Navbar() {
 
   return (
     <div className={classes.root}>
-      <AppBar style={{ background: "#673ab7" }} position="static">
+      <AppBar style={{ background: "#9c27b0" }} position="static">
         <Toolbar>
           <IconButton
             edge="start"
