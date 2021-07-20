@@ -2,15 +2,16 @@ import React from "react";
 import WhereNextCard from "../where_next.jsx";
 
 import Container from "@material-ui/core/Container";
+import { withRouter } from "react-router-dom";
 
-export default function LandingPage() {
+function LandingPage() {
   return (
     <Container
       maxWidth="sm"
       style={{
         backgroundImage: "url(/provence_france.jpeg)",
         backgroundSize: "cover",
-        minHeight: "90vh",
+        minHeight: "100vh",
         minWidth: "100vw",
       }}
     >
@@ -18,3 +19,5 @@ export default function LandingPage() {
     </Container>
   );
 }
+
+export default withRouter(LandingPage);

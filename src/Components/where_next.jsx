@@ -1,4 +1,6 @@
 import React from "react";
+import { Link, withRouter } from "react-router-dom";
+
 import { makeStyles } from "@material-ui/core/styles";
 import Card from "@material-ui/core/Card";
 import CardActions from "@material-ui/core/CardActions";
@@ -36,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function WhereNextCard() {
+function WhereNextCard() {
   const classes = useStyles();
 
   function handleFormSubmission(e) {
@@ -131,7 +133,12 @@ export default function WhereNextCard() {
           </Grid>
         </CardContent>
         <CardActions style={{ justifyContent: "center" }}>
-          <Button type="submit" size="small">
+          <Button
+            component={Link}
+            to="/itinerary-planner"
+            type="submit"
+            size="small"
+          >
             Let's Go!
           </Button>
         </CardActions>
@@ -139,3 +146,5 @@ export default function WhereNextCard() {
     </Grid>
   );
 }
+
+export default withRouter(WhereNextCard);

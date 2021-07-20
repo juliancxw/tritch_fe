@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
+import { withRouter, Redirect } from "react-router";
 import { toast } from "react-toastify";
+import Cookies from "js-cookie";
 
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
@@ -14,6 +16,7 @@ import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import axios from "axios";
+import { AuthContext } from "../Contexts/auth_context";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -35,11 +38,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function SignIn(props) {
+function SignIn(props) {
   const classes = useStyles();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const { setIsAuth } = useContext(AuthContext);
 
   function handleFormSubmission(e) {
     e.preventDefault();
@@ -50,10 +55,12 @@ export default function SignIn(props) {
         password: password,
       })
       .then((response) => {
+        Cookies.set("auth_token", response.data.accessToken);
+        setIsAuth(true);
         props.history.push("/");
       })
       .catch((err) => {
-        toast(err.response.data);
+        toast(err);
       });
   }
 
@@ -128,3 +135,5 @@ export default function SignIn(props) {
     </Container>
   );
 }
+
+export default withRouter(SignIn);

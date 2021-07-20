@@ -1,5 +1,9 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useContext } from "react";
+import { Link, withRouter } from "react-router-dom";
+import Cookies from "js-cookie";
+
+import { AuthContext } from "./Contexts/auth_context";
+
 import { makeStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -19,11 +23,16 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Navbar() {
+function Navbar(props) {
   const classes = useStyles();
 
-  // check for jwt token in cookie
-  let authToken;
+  const { isAuth, setIsAuth } = useContext(AuthContext);
+
+  function handleLogout(e) {
+    Cookies.remove("auth_token");
+    setIsAuth(false);
+    props.history.push("/");
+  }
 
   return (
     <div className={classes.root}>
@@ -45,18 +54,25 @@ export default function Navbar() {
           >
             TRITCH
           </Typography>
-          <Button color="inherit">Trip Planner</Button>
-          <Button color="inherit">Be Inspired</Button>
-          {authToken ? (
-            <Button component={Link} to="/logout" color="inherit">
+          <Button component={Link} to="/users/dashboard" color="inherit">
+            Trip Planner
+          </Button>
+          <Button color="inherit">Discover</Button>
+          {isAuth ? (
+            <Button
+              onClick={(e) => {
+                handleLogout(e);
+              }}
+              color="inherit"
+            >
               Logout
             </Button>
           ) : (
             <div className="unauthenticatedOnly">
-              <Button component={Link} to="/login" color="inherit">
+              <Button component={Link} to="/users/login" color="inherit">
                 Login
               </Button>
-              <Button component={Link} to="/register" color="inherit">
+              <Button component={Link} to="/users/register" color="inherit">
                 Register
               </Button>
             </div>
@@ -66,3 +82,5 @@ export default function Navbar() {
     </div>
   );
 }
+
+export default withRouter(Navbar);
