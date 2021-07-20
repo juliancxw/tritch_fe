@@ -18,6 +18,7 @@ import { AuthContext } from "./Components/Contexts/auth_context";
 
 function App() {
   const [isAuth, setIsAuth] = useState(false);
+  const [user, setUser] = useState("");
 
   useEffect(() => {
     const verifiedUser = Cookies.get("auth_token");

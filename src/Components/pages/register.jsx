@@ -1,6 +1,7 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 import React, { useState } from "react";
+import { withRouter, Redirect } from "react-router-dom";
 
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
@@ -12,7 +13,6 @@ import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
-import { withRouter } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -55,7 +55,7 @@ function SignUp(props) {
         confirmPassword: confirmPassword,
       })
       .then((response) => {
-        props.history.push("/login");
+        props.history.push("/users/login");
       })
       .catch((err) => {
         toast(err.response.data);

@@ -54,19 +54,22 @@ function Navbar(props) {
           >
             TRITCH
           </Typography>
-          <Button component={Link} to="/users/dashboard" color="inherit">
-            Trip Planner
-          </Button>
+          <Button color="inherit">Trip Planner</Button>
           <Button color="inherit">Discover</Button>
           {isAuth ? (
-            <Button
-              onClick={(e) => {
-                handleLogout(e);
-              }}
-              color="inherit"
-            >
-              Logout
-            </Button>
+            <div className="unauthenticatedOnly">
+              <Button component={Link} to="/users/dashboard" color="inherit">
+                My Dashboard
+              </Button>
+              <Button
+                onClick={(e) => {
+                  handleLogout(e);
+                }}
+                color="inherit"
+              >
+                Logout
+              </Button>
+            </div>
           ) : (
             <div className="unauthenticatedOnly">
               <Button component={Link} to="/users/login" color="inherit">
