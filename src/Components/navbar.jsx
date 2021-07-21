@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { Link, withRouter } from "react-router-dom";
 import Cookies from "js-cookie";
 
-import { AuthContext } from "./Contexts/auth_context";
+// import { AuthContext } from "./Contexts/auth_context";
 
 import { makeStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
@@ -26,11 +26,12 @@ const useStyles = makeStyles((theme) => ({
 function Navbar(props) {
   const classes = useStyles();
 
-  const { isAuth, setIsAuth } = useContext(AuthContext);
+  // const { isAuth, setIsAuth } = useContext(AuthContext);
+  const verifiedUser = Cookies.get("auth_token");
 
   function handleLogout(e) {
     Cookies.remove("auth_token");
-    setIsAuth(false);
+    // setIsAuth(false);
     props.history.push("/");
   }
 
@@ -56,7 +57,7 @@ function Navbar(props) {
           </Typography>
           <Button color="inherit">Trip Planner</Button>
           <Button color="inherit">Discover</Button>
-          {isAuth ? (
+          {verifiedUser ? (
             <div className="unauthenticatedOnly">
               <Button component={Link} to="/users/dashboard" color="inherit">
                 My Dashboard

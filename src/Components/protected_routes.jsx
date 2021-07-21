@@ -1,11 +1,13 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { Redirect, Route, withRouter } from "react-router-dom";
 import { AuthContext } from "./Contexts/auth_context";
+import Cookies from "js-cookie";
 
 function ProtectedRoute({ component: Component, ...rest }) {
-  const { isAuth } = useContext(AuthContext);
+  // const { isAuth, setIsAuth } = useContext(AuthContext);
+  const verifiedUser = Cookies.get("auth_token");
 
-  return isAuth ? (
+  return verifiedUser ? (
     <Route {...rest} render={(props) => <Component {...rest} {...props} />} />
   ) : (
     // <Component />

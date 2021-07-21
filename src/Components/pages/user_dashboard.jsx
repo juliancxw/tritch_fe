@@ -8,6 +8,8 @@ import Tab from "@material-ui/core/Tab";
 import Typography from "@material-ui/core/Typography";
 import Box from "@material-ui/core/Box";
 
+import UserBucketlist from "../user_bucketlist";
+
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -82,6 +84,7 @@ function UserDashboard() {
       </TabPanel>
       <TabPanel value={value} index={1}>
         My Bucketlist
+        <UserBucketlist />
       </TabPanel>
       <TabPanel value={value} index={2}>
         Travel Feed

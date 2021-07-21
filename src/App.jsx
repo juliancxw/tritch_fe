@@ -18,15 +18,7 @@ import { AuthContext } from "./Components/Contexts/auth_context";
 
 function App() {
   const [isAuth, setIsAuth] = useState(false);
-  const [user, setUser] = useState("");
-
-  useEffect(() => {
-    const verifiedUser = Cookies.get("auth_token");
-
-    if (verifiedUser) {
-      setIsAuth(true);
-    }
-  }, []);
+  // const [user, setUser] = useState("");
 
   return (
     <AuthContext.Provider value={{ isAuth, setIsAuth }}>
@@ -35,7 +27,7 @@ function App() {
           <Navbar />
           <Switch>
             <Route exact path="/" component={LandingPage} />
-            <Route path="/users/register" component={SignUp} />
+            <GuestRoute path="/users/register" component={SignUp} />
             <GuestRoute path="/users/login" component={SignIn} />
             <ProtectedRoute path="/users/dashboard" component={UserDashboard} />
             <ProtectedRoute path="/users/itinerary/plan" />

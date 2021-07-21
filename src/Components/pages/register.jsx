@@ -1,7 +1,7 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 import React, { useState } from "react";
-import { withRouter, Redirect } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
