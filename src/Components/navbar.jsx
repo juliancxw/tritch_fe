@@ -45,7 +45,7 @@ export default function Navbar() {
           >
             TRITCH
           </Typography>
-          <Button color="inherit">Trip Planner</Button>
+          <Button component={Link} to="/itinerary" color="inherit">Trip Planner</Button>
           <Button color="inherit">Be Inspired</Button>
           {authToken ? (
             <Button component={Link} to="/logout" color="inherit">
