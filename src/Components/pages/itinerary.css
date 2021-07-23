@@ -1,0 +1,5 @@
+.inputBold .MuiInput-root {
+    font-weight: bold;
+    padding: 2px 4px;
+    /* width: 100%; */
+  }

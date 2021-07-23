@@ -1,52 +1,36 @@
-import React, { useState, useRef } from "react";
-import PropTypes from 'prop-types'
-import FullCalendar, { parseClassNames } from "@fullcalendar/react";
+import React, { useState, useRef, useEffect } from "react"
+import "./itinerary.css";
+import { Helmet } from 'react-helmet';
+import { useParams } from "react-router-dom"
+import itineraryAPI from "../../services/itinerary"
+import FullCalendar, { parseClassNames } from "@fullcalendar/react"
 import timeGridPlugin from "@fullcalendar/timegrid"
-import interactionPlugin, { Draggable } from '@fullcalendar/interaction';
-import { makeStyles } from '@material-ui/core/styles';
-import Grid from '@material-ui/core/Grid';
+import interactionPlugin, { Draggable } from '@fullcalendar/interaction'
+import { alpha, makeStyles } from '@material-ui/core/styles'
+import Grid from '@material-ui/core/Grid'
 import AppBar from '@material-ui/core/AppBar'
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
-import CalendarTodayIcon from '@material-ui/icons/CalendarToday';
-import Typography from '@material-ui/core/Typography';
-import Box from '@material-ui/core/Box';
-import Card from '@material-ui/core/Card';
-import CardActions from '@material-ui/core/CardActions';
-import CardContent from '@material-ui/core/CardContent';
-import { useEffect } from "react";
-import Alert from "sweetalert2";
+import Tabs from '@material-ui/core/Tabs'
+import Tab from '@material-ui/core/Tab'
+import Typography from '@material-ui/core/Typography'
+import Box from '@material-ui/core/Box'
+import Card from '@material-ui/core/Card'
+import CardActions from '@material-ui/core/CardActions'
+import CardContent from '@material-ui/core/CardContent'
+import Container from '@material-ui/core/Container'
+import Paper from '@material-ui/core/Paper'
+import TextField from '@material-ui/core/TextField';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import Alert from "sweetalert2"
+import { AutorenewTwoTone } from "@material-ui/icons";
 
-// function TabPanel(props) {
-//     const { children, value, index, ...other } = props;
-  
-//     return (
-//       <div
-//         role="tabpanel"
-//         hidden={value !== index}
-//         id={`scrollable-auto-tabpanel-${index}`}
-//         aria-labelledby={`scrollable-auto-tab-${index}`}
-//         {...other}
-//       >
-//         {value === index && (
-//           <Box p={3}>
-//             <Typography>{children} hello</Typography>
-//           </Box>
-//         )}
-//       </div>
-//     );
-// }
-  
-// TabPanel.propTypes = {
-//     children: PropTypes.node,
-//     index: PropTypes.any.isRequired,
-//     value: PropTypes.any.isRequired,
-// };
-  
+
+
+
+// accessibility props  
 function a11yProps(index) {
     return {
-        id: `day-tab-${index}`,
-        'aria-controls': `day-tabpanel-${index}`,
+        id: `day-${index + 1}-selector`,
+        'aria-controls': `day-${index + 1}-selector`,
     };
 }
 
@@ -54,18 +38,13 @@ function a11yProps(index) {
   
 
 export default function Itinerary() {
-
-    const useStyles = makeStyles((theme) => ({
-        root: {
-          flexGrow: 1,
-          backgroundColor: theme.palette.background.paper,
-        },
-        card: {
-            width: 200,
-        }
-    }));
-     
     
+    // <<<<<States>>>>>
+
+    // Current Itinearry
+    const [itinerary, setItinerary] = useState({})
+
+    // Attractions
     const [events, setEvents] = useState([
         { title: "Event 1", id: "1" },
         { title: "Event 2", id: "2" },
@@ -74,6 +53,23 @@ export default function Itinerary() {
         { title: "Event 5", id: "5" }
     ])
 
+    // Current day selected to edit itinerary
+    const [daySelection, setDaySelection] = React.useState(0);
+
+    // 
+    const [calendarEvents, setCalendarEvents] = React.useState()
+
+
+    // <<<<< Effects >>>>>
+
+    // Retrieve itinerary data
+    const itineraryId = useParams().id
+    useEffect(() => {
+       getItinerary(itineraryId)
+       
+    },[])
+    
+    // Add draggable function to attractions
     useEffect(() => {
         let draggableEl = document.getElementById("external-events");
         new Draggable(draggableEl, {
@@ -84,15 +80,62 @@ export default function Itinerary() {
                 return {
                 title: title,
                 id: id, 
-                create: false,
                 };
             }
         });
-    })
+    }, [])
+
+    
+
+    const useStyles = makeStyles((theme) => ({
+        root: {
+            flexGrow: 1,
+            //   backgroundColor: theme.palette.background.paper,
+            marginTop: theme.spacing(2),
+        },
+        paper: {
+            marginBottom: theme.spacing(2),
+            padding: '5px 30px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        card: {
+            width: 200,
+        },
+    
+        iconButton: {
+        padding: 10,
+        },
+        divider: {
+        height: 28,
+        margin: 4,
+        },
+        input: {
+            margin: "0px 10px",
+            width: "auto",
+        },
+          
+    }));
+     
+    // Function to get itinerary
+
+    const getItinerary = async (id) => {
+        try {
+            let iti = await itineraryAPI.getItinerary(id)
+            setItinerary(iti.data)
+           
+        }
+        catch (error) {
+            console.log(error)
+        }
+        
+    }
+  
     
     const classes = useStyles()
 
-    const [daySelection, setDaySelection] = React.useState(0);
+
     
     const calendarRef = useRef(null)
 
@@ -135,24 +178,17 @@ export default function Itinerary() {
         });
     };
 
-    const handleeventRecieve = info => {
-        console.log("dropped")
-        // // const id = uuid();
-        // const newEvent = {
-        //   title: info.draggedEl.getAttribute("title"),
-        // //   start: info.date,
-        // //   end: new Date(
-        // //     moment(info.date)
-        // //       .add(1, "hour")
-        // //       .valueOf()
-        // //   ),
-        //   id: info.draggedEl.getAttribute("id")
-        // };
-        // setState({
-        //   calendarEvents: this.state.calendarEvents.concat(newEvent)
-        // });
-
+    const eventChange = (events) => {
+        // let calendarApi = calendarRef.current.getApi()
+        // let events = calendarApi.getEvents()
+        let setEvents = events.map((event) =>({
+            "title": event.title
+        }))
+            
+        setCalendarEvents(setEvents)
     }
+
+
 
     const handleChange = (event, newValue) => {
       setDaySelection(newValue);
@@ -163,10 +199,63 @@ export default function Itinerary() {
       else if (newValue < 30 && newValue > 8) {
         calendarApi.gotoDate(`2050-01-${newValue + 1}`)
       }
+      
     };
-
+    
     return(
         <div className={classes.root}>
+        <Container maxWidth="xl" mt={2}>
+            <Helmet>
+                <title>Itinerary</title>
+            </Helmet>
+            <Paper className={classes.paper} >
+                <TextField
+                    id="itineraryName"
+                    className={classes.input}
+                    label="Name"
+                    defaultValue="Name"
+                    value={itinerary ? itinerary.name : ''}
+                    // variant="outlined"
+                    onChange={(e) => setItinerary(prevState => ({
+                        ...prevState,
+                        name: e.target.value
+                    }))}
+                
+                />
+                <TextField
+                    id="destination"
+                    className={classes.input}
+                    label="Destination"
+                    defaultValue="Destination"
+                    value={itinerary ? itinerary.destination : ''}
+                    // variant="outlined"
+                    onChange={(e) => setItinerary(prevState => ({
+                        ...prevState,
+                        destination: e.target.value
+                    }))}
+                    
+                />
+                <TextField
+                    id="trip_duration"
+                    className={classes.input}
+                    label="Duration"
+                    defaultValue="1"
+                    type="number"
+                    value={itinerary ? itinerary.trip_duration : ''}
+                    // variant="outlined"
+                    onChange={(e) => setItinerary(prevState => ({
+                        ...prevState,
+                        trip_duration: Number(e.target.value)
+                    }))}
+                    InputProps={{
+                        endAdornment: <InputAdornment position="end">Days</InputAdornment>,
+                        inputProps: { min: 1, max: 30 }
+                    }}
+                    
+                />
+                
+            </Paper>
+
             <Grid container spacing={3}>
                 <Grid item xs={6}>
                     <div id="external-events">
@@ -198,7 +287,15 @@ export default function Itinerary() {
                         scrollButtons="auto"
                         aria-label="Day Selector Tab"
                         >
-                            <Tab label={<React.Fragment>
+                            {[...Array(itinerary.trip_duration)].map(
+        (element, index) => (
+            <Tab label={<React.Fragment>
+                Day<br />
+                {index + 1}
+            </React.Fragment>}{...a11yProps(index)} />
+        )
+      )}
+                            {/* <Tab label={<React.Fragment>
                                 Day<br />
                                 1
                             </React.Fragment>}{...a11yProps(0)} />
@@ -245,7 +342,7 @@ export default function Itinerary() {
                             <Tab label={<React.Fragment>
                                 Day<br />
                                 12
-                            </React.Fragment>} {...a11yProps(6)} />
+                            </React.Fragment>} {...a11yProps(6)} /> */}
                         </Tabs>
     
                     {/* </AppBar> */}
@@ -264,17 +361,20 @@ export default function Itinerary() {
                             scrollTime={ '07:00:00'}
                             dayHeaderContent= {"Day "+ (daySelection + 1)} 
                             initialDate={"2050-01-01"}
-                            // eventReceive={eventReceive}
                             eventClick={eventClick}
-                            drop={handleeventRecieve}
+                            // eventChange={eventChange}
+                            // drop={eventChange}
+                            eventsSet={eventChange}
                         />
                     
     
                     
                 </Grid>
             </Grid>
-        </div>
-
+           
+           </Container>
+           </div>
+           
     )
 }
 
