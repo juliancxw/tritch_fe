@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react"
-import "./itinerary.css";
+import "./edit_itinerary.css";
 import { Helmet } from 'react-helmet';
 import { useParams } from "react-router-dom"
 import itineraryAPI from "../../services/itinerary"
