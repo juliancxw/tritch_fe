@@ -5,6 +5,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Box from "@material-ui/core/Box";
 
+
 import Navbar from "./components/navbar";
 import Copyright from "./components/copyright";
 import SignUp from "./components/pages/register";
