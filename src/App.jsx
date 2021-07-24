@@ -5,14 +5,14 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Box from "@material-ui/core/Box";
 
-import Navbar from "./components2/navbar.jsx";
-import Copyright from "./components2/copyright";
-import SignUp from "./components2/pages/register.jsx.js.js.js";
-import SignIn from "./components2/pages/login.jsx.js.js.js";
-import LandingPage from "./components2/pages/landing_page";
-import ProtectedRoute from "./components2/protected_routes";
-import GuestRoute from "./components2/guest_route";
-import Itinerary from "./components2/pages/itinerary.jsx";
+import Navbar from "./components/navbar";
+import Copyright from "./components/copyright";
+import SignUp from "./components/pages/register";
+import SignIn from "./components/pages/login";
+import LandingPage from "./components/pages/landing_page";
+import ProtectedRoute from "./components/protected_routes";
+import GuestRoute from "./components/guest_route";
+import Itinerary from "./components/pages/itinerary";
 
 import "./App.css";
 
