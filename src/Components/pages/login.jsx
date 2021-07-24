@@ -1,4 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
+import { withRouter, Redirect } from "react-router";
+import { toast } from "react-toastify";
+import Cookies from "js-cookie";
+
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -7,12 +11,10 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
 import Link from "@material-ui/core/Link";
 import Grid from "@material-ui/core/Grid";
-import Box from "@material-ui/core/Box";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
-import Copyright from "../copyright";
 import axios from "axios";
 
 const useStyles = makeStyles((theme) => ({
@@ -27,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.secondary.main,
   },
   form: {
-    width: "100%", // Fix IE 11 issue.
+    width: "100%",
     marginTop: theme.spacing(1),
   },
   submit: {
@@ -35,11 +37,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function SignIn(props) {
+function SignIn(props) {
   const classes = useStyles();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  // const { setIsAuth } = useContext(AuthContext);
 
   function handleFormSubmission(e) {
     e.preventDefault();
@@ -50,11 +54,11 @@ export default function SignIn(props) {
         password: password,
       })
       .then((response) => {
+        Cookies.set("auth_token", response.data.accessToken);
         props.history.push("/");
       })
       .catch((err) => {
-        console.log(err);
-        // toast message
+        toast(err);
       });
   }
 
@@ -81,7 +85,6 @@ export default function SignIn(props) {
             id="email"
             label="Email Address"
             name="email"
-            autoComplete="email"
             autoFocus
             onChange={(e) => {
               setEmail(e.target.value);
@@ -96,7 +99,6 @@ export default function SignIn(props) {
             label="Password"
             type="password"
             id="password"
-            autoComplete="current-password"
             onChange={(e) => {
               setPassword(e.target.value);
             }}
@@ -121,16 +123,15 @@ export default function SignIn(props) {
               </Link>
             </Grid>
             <Grid item>
-              <Link href="/register" variant="body2">
+              <Link href="/users/register" variant="body2">
                 {"Don't have an account? Sign Up"}
               </Link>
             </Grid>
           </Grid>
         </form>
       </div>
-      <Box mt={8}>
-        <Copyright />
-      </Box>
     </Container>
   );
 }
+
+export default withRouter(SignIn);
