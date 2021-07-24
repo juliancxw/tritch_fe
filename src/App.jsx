@@ -5,22 +5,20 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Box from "@material-ui/core/Box";
 
-import Navbar from "./Components/navbar.jsx";
-import Copyright from "./Components/copyright";
-import SignUp from "./Components/pages/register.jsx";
-import SignIn from "./Components/pages/login.jsx";
-import LandingPage from "./Components/pages/landing_page";
-import ProtectedRoute from "./Components/protected_routes";
-import GuestRoute from "./Components/guest_route";
+import Navbar from "./components/navbar.jsx";
+import Copyright from "./components/copyright";
+import SignUp from "./components/pages/register.jsx";
+import SignIn from "./components/pages/login.jsx";
+import LandingPage from "./components/pages/landing_page";
+import ProtectedRoute from "./components/protected_routes";
+import GuestRoute from "./components/guest_route";
 import Itinerary from "./components/pages/itinerary.jsx";
 
 import "./App.css";
 
-
 function App() {
   return (
     <Router>
-
       <div className="App">
         <Navbar />
         <Switch>
