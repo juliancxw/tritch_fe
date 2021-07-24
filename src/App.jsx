@@ -13,7 +13,8 @@ import SignIn from "./components/pages/login";
 import LandingPage from "./components/pages/landing_page";
 import ProtectedRoute from "./components/protected_routes";
 import GuestRoute from "./components/guest_route";
-import Itinerary from "./components/pages/itinerary";
+import EditItinerary from "./components/pages/edit_itinerary";
+import Trips from "./components/pages/trips";
 
 import "./App.css";
 
@@ -26,10 +27,14 @@ function App() {
           <Route exact path="/" component={LandingPage} />
           <GuestRoute path="/users/register" component={SignUp} />
           <GuestRoute path="/users/login" component={SignIn} />
-          <ProtectedRoute path="/itinerary/view/:id" component={Itinerary} />
-          <ProtectedRoute path="/users/:userID/profile" />
-          <ProtectedRoute path="/users/:userID/itineraries" />
-          <ProtectedRoute path="/users/:userID/bucketlist" />
+          <ProtectedRoute path="/itinerary/view/:id" component={EditItinerary} />
+          <ProtectedRoute path="/itinerary/create/" component={EditItinerary} />
+          <ProtectedRoute path="/users/profile" />
+          <ProtectedRoute path="/users/itineraries" />
+          <ProtectedRoute path="/users/bucketlist" />
+          <Route path="/discover/" />
+          <ProtectedRoute path="/trips/:userid" component={Trips} />
+          <ProtectedRoute path="/trips/:" component={Trips} />
         </Switch>
         <Box mt={5}>
           <Copyright />
