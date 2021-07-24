@@ -17,8 +17,15 @@ const itineraryAPI = {
     getItinerary: (id) => {
         return axiosInstance.get(`/view/${id}`)
     },
-    updateItinerary: () => {
-        return axiosInstance.get('/products')
+    updateItinerary: (id, name, destination, trip_duration, itinerary, published) => {
+        return axiosInstance.patch(`/${id}`. qs.stringify({
+            name : name,
+            destination: destination,
+            trip_duration: trip_duration,
+            itinerary: itinerary,
+            published: published
+
+        }))
     },
     // getProductBySlug: (slug) => {
     //     return axiosInstance.get(`/products/${slug}`)

@@ -20,6 +20,9 @@ import Container from '@material-ui/core/Container'
 import Paper from '@material-ui/core/Paper'
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
+import Switch from '@material-ui/core/Switch';
+import FormGroup from '@material-ui/core/FormGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Alert from "sweetalert2"
 import { AutorenewTwoTone } from "@material-ui/icons";
 
@@ -57,7 +60,10 @@ export default function Itinerary() {
     const [daySelection, setDaySelection] = React.useState(0);
 
     // 
-    const [calendarEvents, setCalendarEvents] = React.useState()
+    const [calendarEvents, setCalendarEvents] = React.useState([{
+        
+        title: "Event 5",
+        start: "2050-01-01T10:00:00+08:00" }])
 
 
     // <<<<< Effects >>>>>
@@ -86,6 +92,112 @@ export default function Itinerary() {
     }, [])
 
     
+    // <<<<< Functions >>>>>
+
+    // Function to retrieve itinerary by id
+
+    const getItinerary = async (id) => {
+        try {
+            let subjectItinerary = await itineraryAPI.getItinerary(id)
+            setItinerary(subjectItinerary.data)
+        
+        }
+        catch (error) {
+            console.log(error)
+        }
+        
+    }
+
+    // Function to update itinerary by id
+
+    const updateItinerary = async (id) => {
+        try {
+            await itineraryAPI.getItinerary(id, itinerary.name, itinerary.destination, itinerary.trip_duration, )
+            
+        
+        }
+        catch (error) {
+            console.log(error)
+        }
+        
+    }
+
+    // Function to handle clicking on event in agenda
+    const eventClick = (eventClick) => {
+        Alert.fire({
+            title: eventClick.event.title,
+            html:
+            `<div class="table-responsive">
+                <table class="table">
+                    <tbody>
+                        <tr >
+                            <td>Title</td>
+                            <td><strong>` +
+                                eventClick.event.title +
+                            `</strong></td>
+                        </tr>
+                        <tr >
+                            <td>Start Time</td>
+                            <td><strong>
+                                ` +
+                                eventClick.event.start +
+                                `
+                            </strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>`,
+
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Remove Event",
+            cancelButtonText: "Close"
+        }).then((result) => {
+            if (result.value) {
+                eventClick.event.remove(); // It will remove event from the calendar
+                Alert.fire("Deleted!", "Your Event has been deleted.", "success");
+            }
+        });
+    };
+
+
+    // Function to save events to state whenever events are added/changed in itinerary
+    const eventChange = (events) => {
+        // let calendarApi = calendarRef.current.getApi()
+        // let events = calendarApi.getEvents()
+        console.log(events)
+        let setEvents = events.map((event) =>({
+            "title": event.title,
+            "start": event.startStr,
+            "end": event.endStr
+        }))
+            
+        console.log(setEvents)
+        setItinerary(prevState => ({
+            ...prevState,
+            itinerary: setEvents}))
+    }
+
+    // Create presistent variable
+    const calendarRef = useRef(null)
+
+    // Function to handle change in day selector foritinerary agenda
+    const handleChange = (event, newValue) => {
+    setDaySelection(newValue);
+    let calendarApi = calendarRef.current.getApi()
+    if (newValue < 9){
+        calendarApi.gotoDate(`2050-01-0${newValue + 1}`)
+    }
+    else if (newValue < 30 && newValue > 8) {
+        calendarApi.gotoDate(`2050-01-${newValue + 1}`)
+    }
+    
+    };
+
+
+
+    // <<<<< STYLES >>>>>
 
     const useStyles = makeStyles((theme) => ({
         root: {
@@ -115,92 +227,11 @@ export default function Itinerary() {
             margin: "0px 10px",
             width: "auto",
         },
+       
           
     }));
      
-    // Function to get itinerary
-
-    const getItinerary = async (id) => {
-        try {
-            let iti = await itineraryAPI.getItinerary(id)
-            setItinerary(iti.data)
-           
-        }
-        catch (error) {
-            console.log(error)
-        }
-        
-    }
-  
-    
     const classes = useStyles()
-
-
-    
-    const calendarRef = useRef(null)
-
-    const eventClick = (eventClick) => {
-        
-        Alert.fire({
-            title: eventClick.event.title,
-            html:
-            `<div class="table-responsive">
-                <table class="table">
-                    <tbody>
-                        <tr >
-                            <td>Title</td>
-                            <td><strong>` +
-                                eventClick.event.title +
-                            `</strong></td>
-                        </tr>
-                        <tr >
-                            <td>Start Time</td>
-                            <td><strong>
-                                ` +
-                                eventClick.event.start +
-                                `
-                            </strong></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>`,
-    
-            showCancelButton: true,
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#3085d6",
-            confirmButtonText: "Remove Event",
-            cancelButtonText: "Close"
-        }).then((result) => {
-            if (result.value) {
-                eventClick.event.remove(); // It will remove event from the calendar
-                Alert.fire("Deleted!", "Your Event has been deleted.", "success");
-            }
-        });
-    };
-
-    const eventChange = (events) => {
-        // let calendarApi = calendarRef.current.getApi()
-        // let events = calendarApi.getEvents()
-        let setEvents = events.map((event) =>({
-            "title": event.title
-        }))
-            
-        setCalendarEvents(setEvents)
-    }
-
-
-
-    const handleChange = (event, newValue) => {
-      setDaySelection(newValue);
-      let calendarApi = calendarRef.current.getApi()
-      if (newValue < 9){
-        calendarApi.gotoDate(`2050-01-0${newValue + 1}`)
-      }
-      else if (newValue < 30 && newValue > 8) {
-        calendarApi.gotoDate(`2050-01-${newValue + 1}`)
-      }
-      
-    };
     
     return(
         <div className={classes.root}>
@@ -253,7 +284,28 @@ export default function Itinerary() {
                     }}
                     
                 />
-                
+                <FormGroup aria-label="position" row>
+                    <FormControlLabel
+                        value="top"
+                        shrink="true"
+                        control={<Switch
+                            size="small"
+                            color="primary"
+                            checked={itinerary ? itinerary.published : false}
+                            onChange={(e) => setItinerary(prevState => ({
+                                ...prevState,
+                                published: e.target.checked
+                            }))}
+                            name="published"
+                            inputProps={{ 'aria-label': 'published' }}
+                        />}
+                        label="Published"
+                        labelPlacement="top"
+                    />
+                    
+
+                </FormGroup>
+
             </Paper>
 
             <Grid container spacing={3}>
@@ -365,6 +417,7 @@ export default function Itinerary() {
                             // eventChange={eventChange}
                             // drop={eventChange}
                             eventsSet={eventChange}
+                            initialEvents={calendarEvents}
                         />
                     
     
