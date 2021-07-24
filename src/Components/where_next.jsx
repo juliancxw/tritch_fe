@@ -56,13 +56,13 @@ function WhereNextCard() {
       direction="column"
       alignItems="center"
       justify="center"
-      style={{ minHeight: "60vh" }}
+      style={{ minHeight: "80vh" }}
     >
       <Card
         style={{
           justifyContent: "center",
           minWidth: "15vw",
-          minHeight: "35vh",
+          minHeight: "30vh",
           borderRadius: "15px",
         }}
         className={classes.root}
@@ -94,9 +94,11 @@ function WhereNextCard() {
             autoComplete="off"
           >
             <TextField
-              id="filled-basic"
-              label="Where's next?"
+              id="filled-size-small"
+              label="Where next?"
               variant="filled"
+              size="small"
+              margin="fullWidth"
             />
           </form>
           <Typography
@@ -133,12 +135,7 @@ function WhereNextCard() {
           </Grid>
         </CardContent>
         <CardActions style={{ justifyContent: "center" }}>
-          <Button
-            component={Link}
-            to="/itinerary-planner"
-            type="submit"
-            size="small"
-          >
+          <Button component={Link} to="/" type="submit" size="small">
             Let's Go!
           </Button>
         </CardActions>
