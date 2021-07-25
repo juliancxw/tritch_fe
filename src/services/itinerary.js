@@ -18,7 +18,7 @@ const itineraryAPI = {
         return axiosInstance.get(`/view/${id}`)
     },
     updateItinerary: (id, name, destination, trip_duration, itinerary, published) => {
-        return axiosInstance.patch(`/${id}`. qs.stringify({
+        return axiosInstance.patch(`/${id}`, qs.stringify({
             name : name,
             destination: destination,
             trip_duration: trip_duration,
@@ -26,6 +26,9 @@ const itineraryAPI = {
             published: published
 
         }))
+    },
+    deleteItinerary: (id) => {
+        return axiosInstance.delete(`/${id}`)
     },
     // getProductBySlug: (slug) => {
     //     return axiosInstance.get(`/products/${slug}`)
