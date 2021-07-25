@@ -35,14 +35,6 @@ function Navbar(props) {
   const anchorRef = useRef(null);
 
   const verifiedUser = Cookies.get("auth_token");
-  const verifiedUserID = decodeToken(verifiedUser);
-
-  // verifiedUserID's value is not set with useEffect
-  // useEffect(() => {
-  //   verifiedUserID = decodeToken(verifiedUser);
-  // });
-
-  console.log(verifiedUserID);
 
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
@@ -135,21 +127,21 @@ function Navbar(props) {
                         >
                           <MenuItem
                             component={Link}
-                            to={`/users/${verifiedUserID}/profile`}
+                            to={`/users/profile`}
                             onClick={handleClose}
                           >
                             My Profile
                           </MenuItem>
                           <MenuItem
                             component={Link}
-                            to={`/users/${verifiedUserID}/itineraries`}
+                            to={`/users/itineraries`}
                             onClick={handleClose}
                           >
                             My Itineraries
                           </MenuItem>
                           <MenuItem
                             component={Link}
-                            to={`/users/${verifiedUserID}/bucketlist`}
+                            to={`/users/bucketlist`}
                             onClick={handleClose}
                           >
                             My Bucketlist

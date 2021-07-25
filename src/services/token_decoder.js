@@ -10,7 +10,6 @@ function decodeToken(token) {
 
   const decodedUserId = decodedToken.userID;
 
-  console.log(decodedUserId);
   return decodedUserId;
 }
 
