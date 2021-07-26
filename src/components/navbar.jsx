@@ -15,8 +15,6 @@ import Grow from "@material-ui/core/Grow";
 import Paper from "@material-ui/core/Paper";
 import Popper from "@material-ui/core/Popper";
 
-import decodeToken from "../services/token_decoder";
-
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,

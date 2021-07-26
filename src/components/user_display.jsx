@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { withRouter } from "react-router-dom";
+import { withRouter, Link } from "react-router-dom";
 
 import { makeStyles } from "@material-ui/core/styles";
-import clsx from "clsx";
 import {
   Card,
   CardHeader,
@@ -11,31 +10,17 @@ import {
   IconButton,
   Typography,
   Avatar,
+  Divider,
+  Grid,
 } from "@material-ui/core";
 
-import FavoriteIcon from "@material-ui/icons/Favorite";
-import ShareIcon from "@material-ui/icons/Share";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import MoreVertIcon from "@material-ui/icons/MoreVert";
-import MapOutlinedIcon from "@material-ui/icons/MapOutlined";
+import FavoriteBorderIcon from "@material-ui/icons/FavoriteBorder";
+import ListAltOutlinedIcon from "@material-ui/icons/ListAltOutlined";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    maxWidth: 345,
-  },
-  media: {
-    height: 0,
-    paddingTop: "56.25%", // 16:9
-  },
-  expand: {
-    transform: "rotate(0deg)",
-    marginLeft: "auto",
-    transition: theme.transitions.create("transform", {
-      duration: theme.transitions.duration.shortest,
-    }),
-  },
-  expandOpen: {
-    transform: "rotate(180deg)",
+    minWidth: 320,
+    maxWidth: 450,
   },
   avatar: {
     height: 80,
@@ -45,70 +30,75 @@ const useStyles = makeStyles((theme) => ({
 
 function UserDisplayCard(props) {
   const classes = useStyles();
-  const [expanded, setExpanded] = useState(false);
-
-  const handleExpandClick = () => {
-    setExpanded(!expanded);
-  };
 
   return (
-    <Card className={classes.root}>
-      <CardHeader
-        avatar={
-          <Avatar aria-label="recipe" className={classes.avatar}>
-            <img
-              style={{
-                maxWidth: "100%",
-                maxHeight: "100%",
-                width: "80px",
-                height: "80px",
-                backgroundSize: "contain",
-                backgroundPosition: "center",
-                borderRadius: "50%",
-              }}
-              src="/mr_bean.jpeg"
-              alt="mr bean"
-            />
-          </Avatar>
-        }
-        action={
-          <IconButton style={{ paddingTop: "10px" }} aria-label="settings">
-            <MoreVertIcon />
+    <Grid
+      container
+      direction="column"
+      justifyContent="flex-start"
+      alignItems="center"
+    >
+      <Card className={classes.root}>
+        <CardHeader
+          avatar={
+            <Avatar align="center" className={classes.avatar}>
+              <img
+                style={{
+                  maxWidth: "100%",
+                  maxHeight: "100%",
+                  width: "80px",
+                  height: "80px",
+                  backgroundSize: "contain",
+                  backgroundPosition: "center",
+                  borderRadius: "50%",
+                }}
+                src="/mr_bean.jpeg"
+                alt="mr bean"
+              />
+            </Avatar>
+          }
+          title={
+            props.user ? (
+              <Typography variant="h5">
+                {props.user.data.firstName} {props.user.data.lastName}
+              </Typography>
+            ) : (
+              <Typography variant="h5" styles={{ padding: "25px" }}>
+                Loading...
+              </Typography>
+            )
+          }
+        />
+        <CardContent>
+          <Grid direction="row">
+            <Typography style={{ padding: "25px" }} variant="body">
+              Followers: 456{" "}
+            </Typography>
+            <Typography variant="body">Following: 779 </Typography>
+          </Grid>
+        </CardContent>
+      </Card>
+      <Divider variant="middle" />
+      <Card className={classes.root}>
+        {" "}
+        <CardActions>
+          <IconButton
+            aria-label="My Bucketlist"
+            component={Link}
+            to="/users/bucketlist"
+          >
+            <FavoriteBorderIcon />
           </IconButton>
-        }
-        title={
-          props.user ? (
-            <Typography variant="h5" style={{ padding: "15px" }}>
-              {props.user.data.firstName} {props.user.data.lastName}
-            </Typography>
-          ) : (
-            <Typography variant="h5" style={{ padding: "15px" }}>
-              Loading...
-            </Typography>
-          )
-        }
-      />
-
-      <CardContent>{/* import followers component here */}</CardContent>
-      <CardActions disableSpacing>
-        <IconButton aria-label="My Bucketlist">
-          <MapOutlinedIcon />
-        </IconButton>
-        <IconButton aria-label="share">
-          <ShareIcon />
-        </IconButton>
-        <IconButton
-          className={clsx(classes.expand, {
-            [classes.expandOpen]: expanded,
-          })}
-          onClick={handleExpandClick}
-          aria-expanded={expanded}
-          aria-label="show more"
-        >
-          <ExpandMoreIcon />
-        </IconButton>
-      </CardActions>
-    </Card>
+          <IconButton
+            aria-label="bucketlist"
+            component={Link}
+            to="/users/itineraries"
+          >
+            <ListAltOutlinedIcon />
+          </IconButton>
+        </CardActions>
+      </Card>
+    </Grid>
   );
 }
 
