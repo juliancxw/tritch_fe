@@ -4,12 +4,12 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
 
-import { Typography, Grid } from "@material-ui/core";
+import { Grid } from "@material-ui/core";
 
 import decodeToken from "../../services/token_decoder";
 import BucketlistDisplay from "../bucketlist_display";
 
-function Bucketlist(props) {
+function Bucketlist() {
   const [bucketlist, setBucketlist] = useState([]);
   const authToken = Cookies.get("auth_token");
 

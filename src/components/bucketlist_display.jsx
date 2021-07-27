@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import {
   Button,
   Card,
@@ -7,10 +8,12 @@ import {
   CardContent,
   CssBaseline,
   Grid,
-  Link,
   Container,
+  Icon,
 } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
+import CheckBoxOutlinedIcon from "@material-ui/icons/CheckBoxOutlined";
+import CheckBoxOutlineBlankIcon from "@material-ui/icons/CheckBoxOutlineBlank";
 import { makeStyles } from "@material-ui/core/styles";
 import { withRouter } from "react-router-dom";
 
@@ -18,10 +21,7 @@ const useStyles = makeStyles((theme) => ({
   icon: {
     marginRight: theme.spacing(2),
   },
-  heroContent: {
-    backgroundColor: theme.palette.background.paper,
-    padding: theme.spacing(8, 0, 6),
-  },
+
   cardGrid: {
     paddingTop: theme.spacing(8),
     paddingBottom: theme.spacing(8),
@@ -37,10 +37,25 @@ const useStyles = makeStyles((theme) => ({
   cardContent: {
     flexGrow: 1,
   },
+  expand: {
+    transform: "rotate(0deg)",
+    marginLeft: "auto",
+    transition: theme.transitions.create("transform", {
+      duration: theme.transitions.duration.shortest,
+    }),
+    expandOpen: {
+      transform: "rotate(180deg)",
+    },
+  },
 }));
 
 function BucketlistDisplay(props) {
   const classes = useStyles();
+  //   const [beenThere, setBeenThere] = useState(null)
+
+  //   const onClick = () => {
+
+  //   }
 
   return (
     <React.Fragment>
@@ -64,16 +79,16 @@ function BucketlistDisplay(props) {
               color="textSecondary"
               paragraph
             >
-              Scratch that travel itch by looking at the itineraries that you
-              want to go to!
+              Scratch that travel itch by looking at the itineraries of the
+              places that you want to go to!
             </Typography>
           </Container>
         </div>
         <Container className={classes.cardGrid} maxWidth="md">
           {/* End hero unit */}
           <Grid container spacing={4}>
-            {props.bucketlist.map((itinerary) => (
-              <Grid item key={itinerary} xs={12} sm={6} md={4}>
+            {props.bucketlist.map((item) => (
+              <Grid item key={item} xs={12} sm={6} md={4}>
                 <Card className={classes.card}>
                   <CardMedia
                     className={classes.cardMedia}
@@ -81,21 +96,38 @@ function BucketlistDisplay(props) {
                     title="Image title"
                   />
                   <CardContent className={classes.cardContent}>
-                    <Typography gutterBottom variant="h5" component="h2">
-                      Heading
+                    <Typography gutterBottom variant="h5">
+                      {item.itineraries.name}
                     </Typography>
-                    <Typography>
-                      This is a media card. You can use this section to describe
-                      the content.
+                    <Typography variant="subtitle1">
+                      Created By:{" "}
+                      <Link to="users/profile/:userID">
+                        {item.itineraries.creator}
+                      </Link>
+                    </Typography>
+                    <Typography variant="subtitle1">
+                      Trip Duration: {item.itineraries.trip_duration} days
                     </Typography>
                   </CardContent>
                   <CardActions>
-                    <Button size="small" color="primary">
+                    <Button
+                      component={Link}
+                      to={`/itinerary/view/${item.itineraries._id}`}
+                      size="small"
+                      color="primary"
+                    >
                       View
                     </Button>
-                    <Button size="small" color="primary">
-                      Edit
-                    </Button>
+
+                    {item.been_there ? (
+                      <Icon>
+                        <CheckBoxOutlinedIcon />
+                      </Icon>
+                    ) : (
+                      <Icon>
+                        <CheckBoxOutlineBlankIcon />
+                      </Icon>
+                    )}
                   </CardActions>
                 </Card>
               </Grid>
