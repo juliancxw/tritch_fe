@@ -79,6 +79,7 @@ function BucketlistDisplay(props) {
           console.log(`shit!`);
         }
         setBucketlist(response.data);
+        console.log('setting state')
       })
       .catch((err) => {
         console.log(err);
@@ -86,32 +87,26 @@ function BucketlistDisplay(props) {
       });
   }, []);
 
-  const handleOnClick = (e) => {
+ 
+
+  const handleOnClick = async (e, index, beenThere, userId, itinerariesId) => {
     const bucketlistItemData = JSON.parse(e.currentTarget.value);
+    
+    let newBucketlist = Array(...bucketlist);
+    let newBeenThere 
 
-    // setBucketlist();
-    // let arr = [];
-    // arr = bucketlistItemData.split(",");
-    let newBucketlist = bucketlist;
 
-    let bucketBeenThere = bucketlistItemData.beenThere;
-
-    // console.log(bucketlistItemData);
-    console.log(bucketBeenThere);
-
-    // let [beenThere, userID, itineraryID] = arr;
-    bucketBeenThere = bucketBeenThere === "true";
-
-    if (bucketBeenThere === false) {
-      newBucketlist[bucketlistItemData.index].been_there = true;
+    if (beenThere=== false) {
+      newBucketlist[index].been_there = true;
+      newBeenThere = true
       console.log(`hi`);
-    } else if (bucketBeenThere === true) {
-      newBucketlist[bucketlistItemData.index].been_there = false;
+    } else if (beenThere === true) {
+      newBucketlist[index].been_there = false;
+      newBeenThere = false
       console.log(`hi111111111`);
     }
-    // newBucketlist[bucketlistItemData.index].been_there = bucketBeenThere;
-    // console.log(newBucketlist);
-    setBucketlist(newBucketlist);
+  
+    await setBucketlist(newBucketlist)
 
     console.log(bucketlist);
 
@@ -119,9 +114,9 @@ function BucketlistDisplay(props) {
       .patch(
         `http://localhost:8000/api/v1/bucketlist/update`,
         {
-          been_there: bucketBeenThere,
-          userID: bucketlistItemData.userID,
-          itinerariesID: bucketlistItemData.itineraryID,
+          been_there: newBeenThere,
+          userID: userId,
+          itinerariesID: itinerariesId,
         },
         {
           headers: headers,
@@ -201,14 +196,9 @@ function BucketlistDisplay(props) {
                     <Button
                       size="small"
                       color="primary"
-                      value={JSON.stringify({
-                        index: index,
-                        beenThere: item.been_there,
-                        userID: item.user._id,
-                        itineraryID: item.itineraries._id,
-                      })}
+                      value={item.been_there}
                       onClick={(e) => {
-                        handleOnClick(e);
+                        handleOnClick(e, index, item.been_there, item.user._id, item.itineraries._id);
                       }}
                     >
                       {item.been_there ? `Been there!` : `Not been there..`}
