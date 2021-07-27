@@ -6,10 +6,12 @@ import { Helmet } from 'react-helmet'
 import { useParams } from "react-router-dom"
 import clsx from 'clsx'
 import itineraryAPI from "../../services/itinerary"
-import placesAPI from "../../services/places"
+import attractionsAPI from "../../services/attractions"
 import FullCalendar, { parseClassNames } from "@fullcalendar/react"
 import timeGridPlugin from "@fullcalendar/timegrid"
+import listPlugin from '@fullcalendar/list'
 import interactionPlugin, { Draggable } from '@fullcalendar/interaction'
+import GoogleMapReact from 'google-map-react'
 import { alpha, makeStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
 import AppBar from '@material-ui/core/AppBar'
@@ -36,6 +38,7 @@ import SaveIcon from '@material-ui/icons/Save'
 import CheckIcon from '@material-ui/icons/Check'
 import DeleteIcon from '@material-ui/icons/Delete'
 import Rating from '@material-ui/lab/Rating'
+import { positions } from '@material-ui/system';
 
 
 
@@ -61,20 +64,25 @@ function Itinerary(props) {
     
 
     // Attractions
-    const [attractions, setAttractions] = useState([
-        { title: "Event 1", id: "1" },
-        { title: "Event 2", id: "2" },
-        { title: "Event 3", id: "3" },
-        { title: "Event 4", id: "4" },
-        { title: "Event 5", id: "5" }
-    ])
+    const [attractions, setAttractions] = useState()
 
     // Current day selected to edit itinerary
-    const [daySelection, setDaySelection] = React.useState(0);
+    const [daySelection, setDaySelection] = useState(0);
 
     // Save button state
-    const [loading, setLoading] = React.useState(false);
-    const [success, setSuccess] = React.useState(false);
+    const [loading, setLoading] = useState(false);
+    const [success, setSuccess] = useState(false);
+
+    //Google Maps
+    const [maps, setMaps] = useState(
+        {
+            center: {
+                lat: 59.95,
+                lng: 30.33
+              },
+              zoom: 11 
+        }
+    )
 
   
     // <<<<< Effects >>>>>
@@ -106,17 +114,20 @@ function Itinerary(props) {
     // Add draggable function to attractions
     useEffect(() => {
         let draggableEl = document.getElementById("external-events");
-        new Draggable(draggableEl, {
-            itemSelector: ".fc-event",
-            eventData: function (eventEl) {
-                let title = eventEl.getAttribute("title");
-                let id = eventEl.getAttribute("data");
-                return {
-                title: title,
-                id: id, 
-                };
-            }
-        });
+
+            new Draggable(draggableEl, {
+                itemSelector: ".fc-event",
+                eventData: function (eventEl) {
+                    let title = eventEl.getAttribute("title");
+                    let id = eventEl.getAttribute("data");
+                    return {
+                    title: title,
+                    id: id, 
+                    };
+                }
+            });
+        
+        
     }, [])
 
     // Autosave changes to trip itinerary whenever state changes
@@ -150,8 +161,7 @@ function Itinerary(props) {
 
     const getItinerary = async (id) => {
         let subjectItinerary
-        let places
-        let photoUrl
+        let attractionsData
         try {
             subjectItinerary = await itineraryAPI.getItinerary(id)
             setItinerary(subjectItinerary.data)
@@ -161,34 +171,15 @@ function Itinerary(props) {
             console.log(error)
         }
         try {
-            places = await placesAPI.search(subjectItinerary.data.location)
+            attractionsData = await attractionsAPI.search(subjectItinerary.data.latlong)
             
-        
         }
         catch (error) {
             console.log(error)
         }
-        try {
-            
-            places.data.results.map(async (place, index) => {
-                try {
-                    photoUrl = await placesAPI.photo(place.photos[0].photo_reference)
-                }
-                catch (error) {
-                    console.log(error)
-                }
-                places.data.results[index].photoUrl = photoUrl.data
-                setAttractions(places.data.results)
-                
-            })
-      
-        }
-        catch (error) {
-            console.log(error)
-        }
+        console.log(attractionsData.data.attractions)
+        setAttractions(attractionsData.data.attractions)
     }
-
-
 
   
     // Function to update itinerary by id
@@ -348,11 +339,17 @@ function Itinerary(props) {
             marginBottom: theme.spacing(2),
             padding: '5px 30px',
             display: 'flex',
+            // position: 'absolute',
             // alignItems: 'center',
             // justifyContent: 'center',
         },
+        attractionsContainer: {
+            display: 'flex',
+            // alignItems: 'center',
+            justifyContent: 'center',
+        },
         card: {
-            width: 200,
+            width: 300,
             marginBottom: 20,
         },
     
@@ -389,6 +386,20 @@ function Itinerary(props) {
           media: {
             height: 140,
           },
+          tab: {
+            minWidth: 80,
+          },
+          panels: {
+              position: 'absolute',
+              display: 'inline',
+              top: 100,
+            left: 0,
+          },
+          map: {
+            position: 'absolute',
+            top: 50,
+            left: 0,
+          },
           
     }));
      
@@ -398,213 +409,246 @@ function Itinerary(props) {
         [classes.buttonSuccess]: success,
       });
    
-    
+    const AnyReactComponent = ( {text} ) => <div>{text}</div>
+
     return(
         <div className={classes.root}>
-        <Container maxWidth="xl" mt={2}>
-            <Helmet>
-                <title>Itinerary</title>
-            </Helmet>
-            <Paper  className={classes.paper} >
-                <Box flexGrow={1}>
-                <FormGroup aria-label="published" row>
-                    <TextField
-                        
-                        id="itineraryName"
-                        className={classes.input}
-                        label="Name"
-                        defaultValue="Name"
-                        value={itinerary ? itinerary.name : 'Name'}
-                        // variant="outlined"
-                        onChange={(e) => setItinerary(prevState => ({
-                            ...prevState,
-                            name: e.target.value
-                        }))}
-                    
+        
+            <div className={classes.map} style={{ height: '100vh', width: '100%' }}>
+                <GoogleMapReact
+                bootstrapURLKeys={{ key: "AIzaSyA0J11Yrneq4iE90Gh29MEsTyDEs7C9zEE" }}
+                defaultCenter={maps.center}
+                defaultZoom={maps.zoom}
+                >
+                    <AnyReactComponent
+                        lat={59.955413}
+                        lng={30.337844}
+                        text="My Marker"
                     />
-                    <TextField
-                        id="destination"
-                        className={classes.input}
-                        label="Destination"
-                        defaultValue="Destination"
-                        value={itinerary ? itinerary.destination : 'Destination'}
-                        // variant="outlined"
-                        onChange={(e) => setItinerary(prevState => ({
-                            ...prevState,
-                            destination: e.target.value
-                        }))}
+                </GoogleMapReact>
+            </div>
+            <Container className={classes.panels} maxWidth="xl" mt={2}>
+                <Helmet>
+                    <title>Itinerary</title>
+                </Helmet>
+                <Paper  className={classes.paper} >
+                    <Box flexGrow={1}>
+                    <FormGroup aria-label="published" row>
+                        <TextField
+                            
+                            id="itineraryName"
+                            className={classes.input}
+                            label="Name"
+                            defaultValue="Name"
+                            value={itinerary ? itinerary.name : 'Name'}
+                            // variant="outlined"
+                            onChange={(e) => setItinerary(prevState => ({
+                                ...prevState,
+                                name: e.target.value
+                            }))}
                         
-                    />
-                    <TextField
-                        id="trip_duration"
-                        className={classes.input}
-                        label="Duration"
-                        defaultValue="1"
-                        type="number"
-                        value={itinerary ? itinerary.trip_duration : '1'}
-                        // variant="outlined"
-                        onChange={(e) => setItinerary(prevState => ({
-                            ...prevState,
-                            trip_duration: Number(e.target.value)
-                        }))}
-                        InputProps={{
-                            endAdornment: <InputAdornment position="end">Days</InputAdornment>,
-                            inputProps: { min: 1, max: 30 }
-                        }}
-                        
-                    />
-                   
-                        <FormControlLabel
-                            control={<Switch
-                                size="small"
-                                color="primary"
-                                checked={itinerary ? itinerary.published : true}
-                                value={itinerary ? itinerary.published : 0}
-                                onChange={(e) => setItinerary(prevState => ({
-                                    ...prevState,
-                                    published: e.target.checked
-                                }))}
-                                name="published"
-                                inputProps={{ 'aria-label': 'published' }}
-                            />}
-                            label="Published"
-                            labelPlacement="top"
                         />
+                        <TextField
+                            id="destination"
+                            className={classes.input}
+                            label="Destination"
+                            defaultValue="Destination"
+                            value={itinerary ? itinerary.destination : 'Destination'}
+                            // variant="outlined"
+                            onChange={(e) => setItinerary(prevState => ({
+                                ...prevState,
+                                destination: e.target.value
+                            }))}
+                            
+                        />
+                        <TextField
+                            id="trip_duration"
+                            className={classes.input}
+                            label="Duration"
+                            defaultValue="1"
+                            type="number"
+                            value={itinerary ? itinerary.trip_duration : '1'}
+                            // variant="outlined"
+                            onChange={(e) => setItinerary(prevState => ({
+                                ...prevState,
+                                trip_duration: Number(e.target.value)
+                            }))}
+                            InputProps={{
+                                endAdornment: <InputAdornment position="end">Days</InputAdornment>,
+                                inputProps: { min: 1, max: 30 }
+                            }}
+                            
+                        />
+                        
+                            <FormControlLabel
+                                control={<Switch
+                                    size="small"
+                                    color="primary"
+                                    checked={itinerary ? itinerary.published : true}
+                                    value={itinerary ? itinerary.published : 0}
+                                    onChange={(e) => setItinerary(prevState => ({
+                                        ...prevState,
+                                        published: e.target.checked
+                                    }))}
+                                    name="published"
+                                    inputProps={{ 'aria-label': 'published' }}
+                                />}
+                                label="Published"
+                                labelPlacement="top"
+                            />
+                        </FormGroup>
+                    </Box>
+                    
+                    
+                    <FormGroup aria-label="save" row>
+                        <div className={classes.wrapper}>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                className={buttonClassname}
+                                disabled={loading}
+                                onClick={handleSaveButtonClick}
+                                startIcon={<SaveIcon />}
+                                style={{marginRight: 12}}
+                                >
+                                Save
+                            </Button>
+                            {loading && <CircularProgress size={24} className={classes.buttonProgress} />}
+                        </div>
+                        <div className={classes.wrapper}>
+                            <Button
+                                variant="contained"
+                                color="Secondary"
+                                onClick={handleDeleteButtonClick}
+                                startIcon={<DeleteIcon />}
+                                >
+                                Delete
+                            </Button>
+                        </div>
                     </FormGroup>
-                </Box>
-                
-                
-                <FormGroup aria-label="save" row>
-                    <div className={classes.wrapper}>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            className={buttonClassname}
-                            disabled={loading}
-                            onClick={handleSaveButtonClick}
-                            startIcon={<SaveIcon />}
-                            style={{marginRight: 12}}
-                            >
-                            Save
-                        </Button>
-                        {loading && <CircularProgress size={24} className={classes.buttonProgress} />}
-                    </div>
-                    <div className={classes.wrapper}>
-                        <Button
-                            variant="contained"
-                            color="Secondary"
-                            onClick={handleDeleteButtonClick}
-                            startIcon={<DeleteIcon />}
-                            >
-                            Delete
-                        </Button>
-                    </div>
-                </FormGroup>
-                
                     
-                
-                
-            </Paper>
-                  
-            <Grid container spacing={3}>
-                <Grid item xs={6}>
-               
-                    <div id="external-events">
-                        {attractions.map((attractions, index) => (
-                            <Card className={`${classes.card} fc-event`} title={attractions.name}>
-                            
-                              <CardMedia
-                                className={classes.media}
-                                image={attractions.photoUrl}
-                                
-                              />
-                              <CardContent>
-                              {attractions.name}
-                                        
-                                        <Rating name="rating" readOnly="true" value={Math.round(attractions.rating * 2)/2} precision={0.5} />
-                              </CardContent>
-                            
+                        
+                    
+                    
+                </Paper>
+                        
+                <Grid container spacing={3}>
+                    <Grid item xs={3}>
+                        <Paper  className={classes.attractionsContainer}>
+                            <div style={{ width: '100%' }}>
+                            <Box component="span" display="block" p={1} m={1} >
+                                <Typography variant="overline">
+                                    Attractions
+                                </Typography>
+                            </Box>
 
-                          </Card>
-                                // <Card
-                                // className= {`${classes.card} fc-event`}
-                                // title={attractions.name}
-                                // data={index}
-                                // key={index}
-                                // variant="outlined"
-                                // >
-                                //     <CardContent>
-                                //         {attractions.name}
-                                        
-                                //         <Rating name="rating" readOnly="true" value={Math.round(attractions.rating * 2)/2} precision={0.5} />
-                                //         {/* {attractions.photos.photo_reference} */}
-                                //     </CardContent>
+                            <Box style={{maxHeight: 730, overflow: 'auto'}} component="span" display="block" p={1} m={1} >
+                                <div id="external-events">
                                 
-                                // </Card>
-                            )) 
-                        }
-                    </div>
-                   
-                </Grid>
-                <Grid item xs={6}>
-                    <Tabs
-                    value={daySelection}
-                    onChange={handleChange}
-                    indicatorColor="primary"
-                    textColor="primary"
-                    variant="scrollable"
-                    scrollButtons="auto"
-                    aria-label="Day Selector Tab"
-                    >
-                        {itinerary
-                              ? [...Array(itinerary.trip_duration)].map(
-                                    (element, index) => (
-                                        <Tab label={<React.Fragment>
-                                            Day<br />
-                                            {index + 1}
-                                        </React.Fragment>}{...a11yProps(index)} />
+                                    {attractions
+                                        ? attractions.map((item) => {
+                                            return (
+                                                <Card className={`${classes.card} fc-event`} title={item.name}>
+                                            
+                                                    <CardMedia
+                                                        className={classes.media}
+                                                        image={item.photoUrl}
+                                                        
+                                                    />
+                                                    <CardContent>
+                                                        {item.name}
+                                                                    
+                                                        <Rating name="rating" readOnly="true" value={Math.round(item.rating * 2)/2} precision={0.5} />
+                                                    </CardContent>
+                                        
+                                                </Card>
+                                            )
+                                    
+                                        })
+                                        : <CircularProgress/>
+                                    }
+                                </div>
+                            </Box>
+                        </div>
+                        </Paper>
+
+                        
+                    </Grid>
+                    <Grid item xs={6}>
+                        <Box component="span" display="block" p={1} m={1} >
+                            <Typography variant="overline">
+                                Map
+                            </Typography>
+                           
+                        </Box>
+                    </Grid>
+                    <Grid item xs={3}>
+                        <Box component="span" display="block" p={1} m={1} >
+                            <Typography variant="overline">
+                                Itinerary
+                            </Typography>
+                        </Box>
+                        <Tabs
+                        value={daySelection}
+                        onChange={handleChange}
+                        indicatorColor="primary"
+                        textColor="primary"
+                        variant="scrollable"
+                        scrollButtons="auto"
+                        aria-label="Day Selector Tab"
+                        
+                        >
+                            {itinerary
+                                    ? [...Array(itinerary.trip_duration)].map(
+                                        (element, index) => (
+                                            <Tab label={<React.Fragment>
+                                                Day<br />
+                                                {index + 1}
+                                            </React.Fragment>}{...a11yProps(index)} classes={{root: classes.tab}}/>
+                                        )
                                     )
-                                )
-                            : <CircularProgress/>
-                        }
-                            
-                    </Tabs>
-    
-                    {itinerary ? 
-                    
-                        <FullCalendar
-                            rerenderDelay={10}
-                            ref={calendarRef}
-                            plugins={[ timeGridPlugin, interactionPlugin ]}
-                            initialView="timeGridDay"
-                            editable={ true }
-                            droppable={true}
-                            dragRevertDuration={0}
-                            headerToolbar={ false }
-                            height={ 650 }
-                            allDaySlot={ false }
-                            scrollTime={ '07:00:00'}
-                            dayHeaderContent= {"Day "+ (daySelection + 1)} 
-                            initialDate={"2050-01-01"}
-                            eventClick={eventClick}
-                            // eventChange={eventChange}
-                            // drop={eventChange}
-                            eventsSet={eventChange}
-                            initialEvents={itinerary.itinerary}
-                            forceEventDuration={ true }
-                        /> 
-                    : <CircularProgress/>}              
-                    
-                    
-    
-                    
+                                : <CircularProgress/>
+                            }
+                                
+                        </Tabs>
+        
+                        {itinerary ? 
+                        
+                            <FullCalendar
+                                rerenderDelay={10}
+                                ref={calendarRef}
+                                plugins={[ timeGridPlugin, interactionPlugin ]}
+                                initialView="timeGridDay"
+                                editable={ true }
+                                droppable={true}
+                                dragRevertDuration={0}
+                                headerToolbar={ false }
+                                height={ 650 }
+                                allDaySlot={ false }
+                                scrollTime={ '07:00:00'}
+                                dayHeaderContent= {"Day "+ (daySelection + 1)} 
+                                initialDate={"2050-01-01"}
+                                eventClick={eventClick}
+                                // eventChange={eventChange}
+                                // drop={eventChange}
+                                eventsSet={eventChange}
+                                initialEvents={itinerary.itinerary}
+                                forceEventDuration={ true }
+                            /> 
+                        : <CircularProgress/>}              
+                        
+                        
+        
+                        
+                    </Grid>
                 </Grid>
-            </Grid>
-           
-           </Container>
-           </div>
-           
+            
+            </Container>
+        </div>
+            
     )
+
+
 }
 
 export default withRouter(Itinerary)
