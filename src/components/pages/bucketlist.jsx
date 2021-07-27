@@ -10,8 +10,6 @@ import decodeToken from "../../services/token_decoder";
 import BucketlistDisplay from "../bucketlist_display";
 
 function Bucketlist() {
-  // const [went, setWent] = useState(null);
-
   return (
     <Grid
       container
@@ -24,4 +22,4 @@ function Bucketlist() {
   );
 }
 
-export default withRouter(Bucketlist);
+export default Bucketlist;

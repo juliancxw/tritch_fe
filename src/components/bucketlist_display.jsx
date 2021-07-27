@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import Cookies from "js-cookie";
-import { toast } from "react-toastify";
 import decodeToken from "../services/token_decoder";
 
 import { Link } from "react-router-dom";
@@ -16,7 +15,6 @@ import {
 } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
-import { withRouter } from "react-router-dom";
 import axios from "axios";
 
 const useStyles = makeStyles((theme) => ({
@@ -51,7 +49,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function BucketlistDisplay(props) {
+function BucketlistDisplay() {
   const classes = useStyles();
   const [bucketlist, setBucketlist] = useState([]);
 
@@ -65,7 +63,6 @@ function BucketlistDisplay(props) {
 
   useEffect(() => {
     // call api to get bucketlist of userID
-
     axios
       .get(
         `http://localhost:8000/api/v1/bucketlist/${verifiedUserID}/view`,
@@ -79,36 +76,32 @@ function BucketlistDisplay(props) {
           console.log(`shit!`);
         }
         setBucketlist(response.data);
-        console.log('setting state')
+        console.log("setting state");
       })
       .catch((err) => {
         console.log(err);
-        toast(err);
       });
   }, []);
 
- 
-
   const handleOnClick = async (e, index, beenThere, userId, itinerariesId) => {
     const bucketlistItemData = JSON.parse(e.currentTarget.value);
-    
+
     let newBucketlist = Array(...bucketlist);
-    let newBeenThere 
+    let newBeenThere;
 
-
-    if (beenThere=== false) {
+    if (beenThere === false) {
       newBucketlist[index].been_there = true;
-      newBeenThere = true
+      newBeenThere = true;
       console.log(`hi`);
     } else if (beenThere === true) {
       newBucketlist[index].been_there = false;
-      newBeenThere = false
+      newBeenThere = false;
       console.log(`hi111111111`);
     }
-  
-    await setBucketlist(newBucketlist)
 
-    console.log(bucketlist);
+    await setBucketlist(newBucketlist);
+
+    setBucketlist(newBucketlist);
 
     axios
       .patch(
@@ -198,7 +191,13 @@ function BucketlistDisplay(props) {
                       color="primary"
                       value={item.been_there}
                       onClick={(e) => {
-                        handleOnClick(e, index, item.been_there, item.user._id, item.itineraries._id);
+                        handleOnClick(
+                          e,
+                          index,
+                          item.been_there,
+                          item.user._id,
+                          item.itineraries._id
+                        );
                       }}
                     >
                       {item.been_there ? `Been there!` : `Not been there..`}
@@ -214,4 +213,4 @@ function BucketlistDisplay(props) {
   );
 }
 
-export default withRouter(BucketlistDisplay);
+export default BucketlistDisplay;
