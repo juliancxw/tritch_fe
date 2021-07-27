@@ -1,4 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import Cookies from "js-cookie";
+import { toast } from "react-toastify";
+import decodeToken from "../services/token_decoder";
+
 import { Link } from "react-router-dom";
 import {
   Button,
@@ -9,13 +13,11 @@ import {
   CssBaseline,
   Grid,
   Container,
-  Icon,
 } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
-import CheckBoxOutlinedIcon from "@material-ui/icons/CheckBoxOutlined";
-import CheckBoxOutlineBlankIcon from "@material-ui/icons/CheckBoxOutlineBlank";
 import { makeStyles } from "@material-ui/core/styles";
 import { withRouter } from "react-router-dom";
+import axios from "axios";
 
 const useStyles = makeStyles((theme) => ({
   icon: {
@@ -51,11 +53,89 @@ const useStyles = makeStyles((theme) => ({
 
 function BucketlistDisplay(props) {
   const classes = useStyles();
-  //   const [beenThere, setBeenThere] = useState(null)
+  const [bucketlist, setBucketlist] = useState([]);
 
-  //   const onClick = () => {
+  const authToken = Cookies.get("auth_token");
 
-  //   }
+  const verifiedUserID = decodeToken(authToken);
+
+  const headers = {
+    auth_token: authToken,
+  };
+
+  useEffect(() => {
+    // call api to get bucketlist of userID
+
+    axios
+      .get(
+        `http://localhost:8000/api/v1/bucketlist/${verifiedUserID}/view`,
+
+        {
+          headers: headers,
+        }
+      )
+      .then((response) => {
+        if (!response) {
+          console.log(`shit!`);
+        }
+        setBucketlist(response.data);
+      })
+      .catch((err) => {
+        console.log(err);
+        toast(err);
+      });
+  }, []);
+
+  const handleOnClick = (e) => {
+    const bucketlistItemData = JSON.parse(e.currentTarget.value);
+
+    // setBucketlist();
+    // let arr = [];
+    // arr = bucketlistItemData.split(",");
+    let newBucketlist = bucketlist;
+
+    let bucketBeenThere = bucketlistItemData.beenThere;
+
+    // console.log(bucketlistItemData);
+    console.log(bucketBeenThere);
+
+    // let [beenThere, userID, itineraryID] = arr;
+    bucketBeenThere = bucketBeenThere === "true";
+
+    if (bucketBeenThere === false) {
+      newBucketlist[bucketlistItemData.index].been_there = true;
+      console.log(`hi`);
+    } else if (bucketBeenThere === true) {
+      newBucketlist[bucketlistItemData.index].been_there = false;
+      console.log(`hi111111111`);
+    }
+    // newBucketlist[bucketlistItemData.index].been_there = bucketBeenThere;
+    // console.log(newBucketlist);
+    setBucketlist(newBucketlist);
+
+    console.log(bucketlist);
+
+    axios
+      .patch(
+        `http://localhost:8000/api/v1/bucketlist/update`,
+        {
+          been_there: bucketBeenThere,
+          userID: bucketlistItemData.userID,
+          itinerariesID: bucketlistItemData.itineraryID,
+        },
+        {
+          headers: headers,
+        }
+      )
+      .then((response) => {
+        console.log(response);
+        return;
+      })
+      .catch((err) => {
+        console.log(err);
+        return;
+      });
+  };
 
   return (
     <React.Fragment>
@@ -87,7 +167,7 @@ function BucketlistDisplay(props) {
         <Container className={classes.cardGrid} maxWidth="md">
           {/* End hero unit */}
           <Grid container spacing={4}>
-            {props.bucketlist.map((item) => (
+            {bucketlist.map((item, index) => (
               <Grid item key={item} xs={12} sm={6} md={4}>
                 <Card className={classes.card}>
                   <CardMedia
@@ -118,16 +198,21 @@ function BucketlistDisplay(props) {
                     >
                       View
                     </Button>
-
-                    {item.been_there ? (
-                      <Icon>
-                        <CheckBoxOutlinedIcon />
-                      </Icon>
-                    ) : (
-                      <Icon>
-                        <CheckBoxOutlineBlankIcon />
-                      </Icon>
-                    )}
+                    <Button
+                      size="small"
+                      color="primary"
+                      value={JSON.stringify({
+                        index: index,
+                        beenThere: item.been_there,
+                        userID: item.user._id,
+                        itineraryID: item.itineraries._id,
+                      })}
+                      onClick={(e) => {
+                        handleOnClick(e);
+                      }}
+                    >
+                      {item.been_there ? `Been there!` : `Not been there..`}
+                    </Button>
                   </CardActions>
                 </Card>
               </Grid>
