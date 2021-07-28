@@ -15,7 +15,8 @@ import ProtectedRoute from "./components/protected_routes";
 import GuestRoute from "./components/guest_route";
 import EditItinerary from "./components/pages/edit_itinerary";
 import Trips from "./components/pages/trips";
-
+import Comments from "./components/comments";
+import Follow from "./components/follows";
 import "./App.css";
 
 function App() {
@@ -25,6 +26,10 @@ function App() {
         <Navbar />
         <Switch>
           <Route exact path="/" component={LandingPage} />
+          {/* to remove later*/}
+          <Route exact path="/testcomment/:itineraryid" component={Comments} /> 
+          {/* /* to remove later*/}
+          <Route exact path="/testfollower/:profileid" component={Follow} />
           <GuestRoute path="/users/register" component={SignUp} />
           <GuestRoute path="/users/login" component={SignIn} />
           <ProtectedRoute path="/itinerary/view/:id" component={EditItinerary} />
