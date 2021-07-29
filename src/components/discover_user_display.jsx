@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
-import Cookies from "js-cookie";
-import decodeToken from "../services/token_decoder";
-
-import { Link, useParams } from "react-router-dom";
+import axios from "axios";
+import { Link } from "react-router-dom";
 import {
   Button,
   Card,
@@ -15,7 +13,6 @@ import {
 } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
-import axios from "axios";
 
 const useStyles = makeStyles((theme) => ({
   icon: {
@@ -49,41 +46,19 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function BucketlistDisplay() {
+function DiscoverUsersDisplay() {
   const classes = useStyles();
-  const [bucketlist, setBucketlist] = useState([]);
-  const { userid } = useParams();
-
-  const authToken = Cookies.get("auth_token");
-
-  const verifiedUserID = decodeToken(authToken);
-
-  let userToRender = verifiedUserID;
-
-  const headers = {
-    auth_token: authToken,
-  };
+  const [allUsers, setAllUsers] = useState([]);
 
   useEffect(() => {
-    if (userid) {
-      userToRender = userid;
-    }
-
-    // call api to get bucketlist of userID
+    // call backend to get details of all users
     axios
-      .get(
-        `http://localhost:8000/api/v1/bucketlist/${userToRender}/view`,
-
-        {
-          headers: headers,
-        }
-      )
+      .get(`http://localhost:8000/api/v1/users/show/all`)
       .then((response) => {
         if (!response) {
           console.log(`shit!`);
         }
-        setBucketlist(response.data);
-        console.log("setting state");
+        setAllUsers(response.data);
       })
       .catch((err) => {
         console.log(err);
@@ -91,49 +66,50 @@ function BucketlistDisplay() {
   }, []);
 
   // handle clicking of been_there
-  const handleOnClick = async (e, index, beenThere, userId, itinerariesId) => {
-    const bucketlistItemData = JSON.parse(e.currentTarget.value);
+  //   const handleOnClick = async (e, index, beenThere, userId, itinerariesId) => {
+  //     const bucketlistItemData = JSON.parse(e.currentTarget.value);
 
-    // restructuring the Array
-    let newBucketlist = Array(...bucketlist);
-    let newBeenThere;
+  //     // restructuring the Array
+  //     let newBucketlist = Array(...bucketlist);
+  //     let newBeenThere;
 
-    // handle toggler nature of been_there
-    if (beenThere === false) {
-      newBucketlist[index].been_there = true;
-      newBeenThere = true;
-    } else if (beenThere === true) {
-      newBucketlist[index].been_there = false;
-      newBeenThere = false;
-    }
+  //     // handle toggler nature of been_there
+  //     if (beenThere === false) {
+  //       newBucketlist[index].been_there = true;
+  //       newBeenThere = true;
+  //     } else if (beenThere === true) {
+  //       newBucketlist[index].been_there = false;
+  //       newBeenThere = false;
+  //     }
 
-    // set state with the updated cards
-    // (only been_there of targeted card will be updated, rest remains as is)
-    await setBucketlist(newBucketlist);
+  //     // set state with the updated cards
+  //     // (only been_there of targeted card will be updated, rest remains as is)
+  //     await setBucketlist(newBucketlist);
 
-    axios
-      .patch(
-        `http://localhost:8000/api/v1/bucketlist/update`,
-        {
-          been_there: newBeenThere,
-          userID: userId,
-          itinerariesID: itinerariesId,
-        },
-        {
-          headers: headers,
-        }
-      )
-      .then((response) => {
-        console.log(response);
-        return;
-      })
-      .catch((err) => {
-        console.log(err);
-        return;
-      });
-  };
+  //     // setBucketlist(newBucketlist);
 
-  console.log(bucketlist);
+  //     axios
+  //       .patch(
+  //         `http://localhost:8000/api/v1/bucketlist/update`,
+  //         {
+  //           been_there: newBeenThere,
+  //           userID: userId,
+  //           itinerariesID: itinerariesId,
+  //         },
+  //         {
+  //           headers: headers,
+  //         }
+  //       )
+  //       .then((response) => {
+  //         console.log(response);
+  //         return;
+  //       })
+  //       .catch((err) => {
+  //         console.log(err);
+  //         return;
+  //       });
+  //   };
+
   return (
     <React.Fragment>
       <CssBaseline />
@@ -148,7 +124,7 @@ function BucketlistDisplay() {
               color="textPrimary"
               gutterBottom
             >
-              My Bucketlist
+              Discover all users
             </Typography>
             <Typography
               variant="h5"
@@ -156,16 +132,15 @@ function BucketlistDisplay() {
               color="textSecondary"
               paragraph
             >
-              Scratch that travel itch by looking at the itineraries of the
-              places that you want to go to!
+              Seek inspiration from fellow travellers!
             </Typography>
           </Container>
         </div>
         <Container className={classes.cardGrid} maxWidth="md">
           {/* End hero unit */}
           <Grid container spacing={4}>
-            {bucketlist.map((item, index) => (
-              <Grid item key={item} xs={12} sm={6}>
+            {allUsers.map((item, index) => (
+              <Grid item key={item} xs={12} sm={6} md={4}>
                 <Card className={classes.card}>
                   <CardMedia
                     className={classes.cardMedia}
@@ -174,42 +149,41 @@ function BucketlistDisplay() {
                   />
                   <CardContent className={classes.cardContent}>
                     <Typography gutterBottom variant="h5">
-                      {item.itineraries.name}
+                      {item.firstName} {item.lastName}
                     </Typography>
                     <Typography variant="subtitle1">
-                      Created By:{" "}
-                      <Link to="users/profile/:userID">
-                        {item.itineraries.creator}
+                      <Link
+                        style={{ textDecoration: "none" }}
+                        to={`users/itineraries/${item._id}`}
+                      >
+                        {item.firstName}'s Itineraries
                       </Link>
                     </Typography>
                     <Typography variant="subtitle1">
-                      Trip Duration: {item.itineraries.trip_duration} days
+                      <Link
+                        style={{ textDecoration: "none" }}
+                        to={`users/bucketlist/:${item._id}`}
+                      >
+                        {item.firstName}'s Bucketlist
+                      </Link>
                     </Typography>
                   </CardContent>
                   <CardActions>
                     <Button
                       component={Link}
-                      to={`/itinerary/view/${item.itineraries._id}`}
+                      to={`users/profile/${item._id}`}
                       size="small"
                       color="primary"
                     >
                       View
                     </Button>
                     <Button
+                      component={Link}
+                      to={``}
                       size="small"
                       color="primary"
-                      value={item.been_there}
-                      onClick={(e) => {
-                        handleOnClick(
-                          e,
-                          index,
-                          item.been_there,
-                          item.user._id,
-                          item.itineraries._id
-                        );
-                      }}
                     >
-                      {item.been_there ? `Been there!` : `Not been there..`}
+                      Follow
                     </Button>
                   </CardActions>
                 </Card>
@@ -222,4 +196,4 @@ function BucketlistDisplay() {
   );
 }
 
-export default BucketlistDisplay;
+export default DiscoverUsersDisplay;

@@ -1,5 +1,9 @@
-import React, { useState } from "react";
-import { withRouter, Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { withRouter, useParams, Link } from "react-router-dom";
+import axios from "axios";
+import { toast } from "react-toastify";
+import Cookies from "js-cookie";
+import decodeToken from "../services/token_decoder";
 
 import { makeStyles } from "@material-ui/core/styles";
 import {
@@ -7,15 +11,11 @@ import {
   CardHeader,
   CardContent,
   CardActions,
-  IconButton,
+  Button,
   Typography,
   Avatar,
-  Divider,
   Grid,
 } from "@material-ui/core";
-
-import FavoriteBorderIcon from "@material-ui/icons/FavoriteBorder";
-import ListAltOutlinedIcon from "@material-ui/icons/ListAltOutlined";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -28,8 +28,62 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function UserDisplayCard(props) {
+function UserDisplayCard() {
   const classes = useStyles();
+  const [user, setUser] = useState(null);
+  const [followers, setFollowers] = useState(null);
+  const { userid } = useParams();
+  const authToken = Cookies.get("auth_token");
+  const verifiedUserID = decodeToken(authToken);
+
+  let userToRender = verifiedUserID;
+
+  const headers = {
+    auth_token: authToken,
+  };
+
+  useEffect(() => {
+    if (userid) {
+      userToRender = userid;
+    }
+
+    console.log(userid);
+
+    axios
+      .get(`http://localhost:8000/api/v1/users/show/${userToRender}`, {
+        headers: headers,
+      })
+      .then((response) => {
+        setUser(response.data);
+      })
+      .catch((err) => {
+        if (!err.response.data) {
+          toast(`server error...`);
+        }
+        toast(err.response.data);
+      });
+  }, [userid]);
+
+  console.log(user);
+
+  // // get people who follows user
+  // useEffect(() => {
+  //   axios
+  //     .get(`http://localhost:8000/api/v1/following/${userToRender}`, {
+  //       headers: headers,
+  //     })
+  //     .then((response) => {
+  //       if (!response) {
+  //         console.log(`error connecting with the server!`);
+  //       }
+  //       setFollowers(response.data);
+  //     })
+  //     .catch((err) => {
+  //       toast(err.response.data);
+  //     });
+  // }, []);
+
+  // console.log(followers);
 
   return (
     <Grid
@@ -38,6 +92,10 @@ function UserDisplayCard(props) {
       justifyContent="flex-start"
       alignItems="center"
     >
+      <Typography align="center" variant="h4" style={{ padding: "30px" }}>
+        {user ? `${user.firstName} ${user.lastName}'s Profile` : `loading...`}
+      </Typography>
+
       <Card className={classes.root}>
         <CardHeader
           avatar={
@@ -58,9 +116,9 @@ function UserDisplayCard(props) {
             </Avatar>
           }
           title={
-            props.user ? (
+            user ? (
               <Typography variant="h5">
-                {props.user.data.firstName} {props.user.data.lastName}
+                {user.firstName} {user.lastName}
               </Typography>
             ) : (
               <Typography variant="h5" styles={{ padding: "25px" }}>
@@ -77,27 +135,32 @@ function UserDisplayCard(props) {
             <Typography variant="body">Following: 779 </Typography>
           </Grid>
         </CardContent>
-      </Card>
-      <Divider variant="middle" />
-      <Card className={classes.root}>
-        {" "}
         <CardActions>
-          <IconButton
-            aria-label="My Bucketlist"
-            component={Link}
-            to="/users/bucketlist"
-          >
-            <FavoriteBorderIcon />
-          </IconButton>
-          <IconButton
+          {userid ? (
+            <Button component={Link} to={`/users/bucketlist/${userid}`}>
+              {" "}
+              Bucketlist
+            </Button>
+          ) : (
+            <Button component={Link} to={`/users/bucketlist/`}>
+              My Bucketlist
+            </Button>
+          )}
+
+          <Button
             aria-label="bucketlist"
             component={Link}
             to="/users/itineraries"
           >
-            <ListAltOutlinedIcon />
-          </IconButton>
+            My Itineraries
+          </Button>
         </CardActions>
       </Card>
+      {/* <Divider variant="middle" />
+      <Card className={classes.root}>
+        {" "}
+        
+      </Card> */}
     </Grid>
   );
 }

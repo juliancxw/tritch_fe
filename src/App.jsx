@@ -14,6 +14,7 @@ import GuestRoute from "./components/guest_route";
 import EditItinerary from "./components/pages/edit_itinerary";
 import Trips from "./components/pages/trips";
 import UserProfile from "./components/pages/profile";
+import Discover from "./components/pages/discover";
 
 import "./App.css";
 import Bucketlist from "./components/pages/bucketlist";
@@ -25,7 +26,7 @@ function App() {
         <Navbar />
         <Switch>
           <Route exact path="/" component={LandingPage} />
-          <Route path="/discover/" />
+          <Route path="/discover/" component={Discover} />
           <GuestRoute path="/users/register" component={SignUp} />
           <GuestRoute path="/users/login" component={SignIn} />
           <ProtectedRoute
@@ -33,9 +34,23 @@ function App() {
             component={EditItinerary}
           />
           <ProtectedRoute path="/itinerary/create/" component={EditItinerary} />
-          <ProtectedRoute path="/users/profile" component={UserProfile} />
+          <ProtectedRoute
+            exact
+            path="/users/profile/"
+            component={UserProfile}
+          />
+          <ProtectedRoute
+            path="/users/profile/:userid"
+            component={UserProfile}
+          />
           <ProtectedRoute path="/users/itineraries" />
-          <ProtectedRoute path="/users/bucketlist" component={Bucketlist} />
+          <ProtectedRoute path="/users/itineraries/:userid" />
+          <ProtectedRoute
+            exact
+            path="/users/bucketlist"
+            component={Bucketlist}
+          />
+          <ProtectedRoute path="/users/bucketlist/:itinerariesid/add" />
           <ProtectedRoute path="/trips/:userid" component={Trips} />
           <ProtectedRoute path="/trips/:" component={Trips} />
         </Switch>

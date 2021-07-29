@@ -89,7 +89,9 @@ function Navbar(props) {
             TRITCH
           </Typography>
           <Button color="inherit">Trip Planner</Button>
-          <Button color="inherit">Discover</Button>
+          <Button component={Link} to="/discover" color="inherit">
+            Discover
+          </Button>
           {verifiedUser ? (
             <div className="authenticatedOnly">
               <Button
