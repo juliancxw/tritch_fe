@@ -15,7 +15,9 @@ import {
   Typography,
   Avatar,
   Grid,
+  Box,
 } from "@material-ui/core";
+import Follow  from "./follows"; 
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -30,18 +32,19 @@ const useStyles = makeStyles((theme) => ({
 
 function UserDisplayCard() {
   const classes = useStyles();
-  const [user, setUser] = useState(null);
-  const [followers, setFollowers] = useState(null);
+  const [user, setUser] = useState();
+  const [followers, setFollowers] = useState();
   const { userid } = useParams();
   const authToken = Cookies.get("auth_token");
   const verifiedUserID = decodeToken(authToken);
+  
 
   let userToRender = verifiedUserID;
 
   const headers = {
     auth_token: authToken,
   };
-
+ 
   useEffect(() => {
     if (userid) {
       userToRender = userid;
@@ -86,82 +89,40 @@ function UserDisplayCard() {
   // console.log(followers);
 
   return (
-    <Grid
-      container
-      direction="column"
-      justifyContent="flex-start"
-      alignItems="center"
-    >
-      <Typography align="center" variant="h4" style={{ padding: "30px" }}>
-        {user ? `${user.firstName} ${user.lastName}'s Profile` : `loading...`}
-      </Typography>
-
-      <Card className={classes.root}>
-        <CardHeader
-          avatar={
-            <Avatar align="center" className={classes.avatar}>
-              <img
-                style={{
-                  maxWidth: "100%",
-                  maxHeight: "100%",
-                  width: "80px",
-                  height: "80px",
-                  backgroundSize: "contain",
-                  backgroundPosition: "center",
-                  borderRadius: "50%",
-                }}
-                src="/mr_bean.jpeg"
-                alt="mr bean"
-              />
-            </Avatar>
-          }
-          title={
-            user ? (
-              <Typography variant="h5">
-                {user.firstName} {user.lastName}
-              </Typography>
+    
+    
+      
+       <Box display="flex" justifyContent="center" mt={4}>
+          <Card className={classes.root}>
+            <CardContent>
+          
+              <Follow/>
+            
+            </CardContent>
+          <CardActions>
+            {userid ? (
+              <Button component={Link} to={`/users/bucketlist/${userid}`}>
+                {" "}
+                Bucketlist
+              </Button>
             ) : (
-              <Typography variant="h5" styles={{ padding: "25px" }}>
-                Loading...
-              </Typography>
-            )
-          }
-        />
-        <CardContent>
-          <Grid direction="row">
-            <Typography style={{ padding: "25px" }} variant="body">
-              Followers: 456{" "}
-            </Typography>
-            <Typography variant="body">Following: 779 </Typography>
-          </Grid>
-        </CardContent>
-        <CardActions>
-          {userid ? (
-            <Button component={Link} to={`/users/bucketlist/${userid}`}>
-              {" "}
-              Bucketlist
-            </Button>
-          ) : (
-            <Button component={Link} to={`/users/bucketlist/`}>
-              My Bucketlist
-            </Button>
-          )}
+              <Button component={Link} to={`/users/bucketlist/`}>
+                My Bucketlist
+              </Button>
+            )}
 
-          <Button
-            aria-label="bucketlist"
-            component={Link}
-            to="/users/itineraries"
-          >
-            My Itineraries
-          </Button>
-        </CardActions>
-      </Card>
-      {/* <Divider variant="middle" />
-      <Card className={classes.root}>
-        {" "}
-        
-      </Card> */}
-    </Grid>
+            <Button
+              aria-label="bucketlist"
+              component={Link}
+              to="/users/itineraries"
+            >
+              My Itineraries
+            </Button>
+          </CardActions>
+        </Card>
+       </Box>
+       
+
   );
 }
 

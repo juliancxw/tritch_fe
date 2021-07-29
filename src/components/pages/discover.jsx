@@ -78,10 +78,10 @@ export default function Discover() {
           onChange={handleChange}
           aria-label="nav tabs example"
         >
-          <LinkTab label="Users" href="/discover/users" {...a11yProps(0)} />
+          <LinkTab label="Users"  {...a11yProps(0)} />
           <LinkTab
             label="Itineraries"
-            href="/discover/itineraries"
+            
             {...a11yProps(1)}
           />
         </Tabs>

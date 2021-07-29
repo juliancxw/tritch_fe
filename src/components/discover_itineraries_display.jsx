@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function DiscoverItinerariesDisplay() {
+function DiscoverItinerariesDisplay(props) {
   const classes = useStyles();
   const [allItineraries, setAllItineraries] = useState([]);
   const [userBucketlist, setUserBucketlist] = useState([]);
@@ -78,7 +78,7 @@ function DiscoverItinerariesDisplay() {
       });
   }, []);
 
-  console.log(userBucketlist);
+  // console.log(userBucketlist);
 
   useEffect(() => {
     // call backend to get all itineraries
@@ -87,6 +87,7 @@ function DiscoverItinerariesDisplay() {
       .then((response) => {
         if (!response) {
           console.log(`shit!`);
+          return
         }
         setAllItineraries(response.data.itineraries);
       })
@@ -203,9 +204,9 @@ function DiscoverItinerariesDisplay() {
                       Created By:{" "}
                       <Link
                         style={{ textDecoration: "none" }}
-                        to={`users/profile/${item.creator}`}
+                        to={`users/profile/${item.creator[0]._id}`}
                       >
-                        {item.creator}
+                        {item.creator[0].firstName}
                       </Link>
                     </Typography>
                     <Typography variant="subtitle1">
@@ -243,3 +244,4 @@ function DiscoverItinerariesDisplay() {
 }
 
 export default DiscoverItinerariesDisplay;
+// 
