@@ -3,7 +3,7 @@ import qs from 'qs'
 
 // create axios instance
 const axiosInstance = axios.create({
-    baseURL: "http://localhost:8000/api/v1/attractions",
+    baseURL: "https://tritch-be.herokuapp.com/api/v1/attractions",
     timeout: 5000, // 5000ms = 5s
 })
 

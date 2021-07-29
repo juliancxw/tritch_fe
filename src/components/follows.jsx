@@ -91,7 +91,7 @@ function Follow(props) {
     };
     await axios
       .get(
-        `http://localhost:8000/api/v1/users/show/${verifiedUserID}`,
+        `https://tritch-be.herokuapp.com/api/v1/users/show/${verifiedUserID}`,
         { headers: headers }
       )
       .then((response) => {
@@ -106,7 +106,7 @@ function Follow(props) {
   //get followers of  Profile
   const getFollowers = () => {
      axios
-      .get(`http://localhost:8000/api/v1/following/${profileID}`, {
+      .get(`https://tritch-be.herokuapp.com/api/v1/following/${profileID}`, {
         headers: headers,
       })
       .then((res) => {
@@ -134,7 +134,7 @@ function Follow(props) {
       auth_token: Cookies.get("auth_token"),
     };
     await axios
-      .get(`http://localhost:8000/api/v1/users/show/${profileID}`, {
+      .get(`https://tritch-be.herokuapp.com/api/v1/users/show/${profileID}`, {
         headers: headers,
       })
       .then((response) => {
@@ -154,7 +154,7 @@ function Follow(props) {
     try {
       await axios
       .post(
-        `http://localhost:8000/api/v1/following/${verifiedUserID}/follow`,
+        `https://tritch-be.herokuapp.com/api/v1/following/${verifiedUserID}/follow`,
         { following: userid },
         { headers: headers }
       )
@@ -173,7 +173,7 @@ function Follow(props) {
     try {
       axios
       .post(
-        `http://localhost:8000/api/v1/following/${verifiedUserID}/unfollow`,
+        `https://tritch-be.herokuapp.com/api/v1/following/${verifiedUserID}/unfollow`,
         { following: userid},
         { headers: headers }
       )
