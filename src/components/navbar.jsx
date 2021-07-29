@@ -1,5 +1,5 @@
-import React from "react";
-import { Link, withRouter, useParams } from "react-router-dom";
+import React, { useEffect, useRef, useState } from "react";
+import { Link, withRouter } from "react-router-dom";
 import Cookies from "js-cookie";
 import logo  from '../images/logo.png'
 import { makeStyles } from "@material-ui/core/styles";
@@ -31,10 +31,10 @@ const useStyles = makeStyles((theme) => ({
 
 function Navbar(props) {
   const classes = useStyles();
-  const [open, setOpen] = React.useState(false);
-  const anchorRef = React.useRef(null);
+  const [open, setOpen] = useState(false);
+  const anchorRef = useRef(null);
 
-  const { userID } = useParams();
+  const verifiedUser = Cookies.get("auth_token");
 
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
@@ -56,16 +56,14 @@ function Navbar(props) {
   }
 
   // return focus to the button when we transitioned from !open -> open
-  const prevOpen = React.useRef(open);
-  React.useEffect(() => {
+  const prevOpen = useRef(open);
+  useEffect(() => {
     if (prevOpen.current === true && open === false) {
       anchorRef.current.focus();
     }
 
     prevOpen.current = open;
   }, [open]);
-
-  const verifiedUser = Cookies.get("auth_token");
 
   function handleLogout(e) {
     Cookies.remove("auth_token");
@@ -102,7 +100,9 @@ function Navbar(props) {
             >
               Trip Planner
             </Button>
-          <Button color="inherit">Discover</Button>
+          <Button component={Link} to="/discover" color="inherit">
+            Discover
+          </Button>
           {verifiedUser ? (
             <div className="authenticatedOnly">
               <Button
@@ -138,21 +138,21 @@ function Navbar(props) {
                         >
                           <MenuItem
                             component={Link}
-                            to={"/users/" + { userID } + "/profile"}
+                            to={`/users/profile`}
                             onClick={handleClose}
                           >
                             My Profile
                           </MenuItem>
                           <MenuItem
                             component={Link}
-                            to={"/users/" + { userID } + "/itineraries"}
+                            to={`/users/itineraries`}
                             onClick={handleClose}
                           >
                             My Itineraries
                           </MenuItem>
                           <MenuItem
                             component={Link}
-                            to={"/users/" + { userID } + "/bucketlist"}
+                            to={`/users/bucketlist`}
                             onClick={handleClose}
                           >
                             My Bucketlist
