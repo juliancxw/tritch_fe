@@ -17,8 +17,17 @@ const itineraryAPI = {
     getItinerary: (id) => {
         return axiosInstance.get(`/view/${id}`)
     },
+    createItinerary: (destination, userId) => {
+        console.log("contacting itinerary api")
+        return axiosInstance.post(`/`, qs.stringify({
+            destination: destination,
+            creator: userId
+
+        }))
+        
+    },
     updateItinerary: (id, name, destination, trip_duration, itinerary, published) => {
-        return axiosInstance.patch(`/${id}`. qs.stringify({
+        return axiosInstance.patch(`/${id}`, qs.stringify({
             name : name,
             destination: destination,
             trip_duration: trip_duration,
@@ -26,6 +35,9 @@ const itineraryAPI = {
             published: published
 
         }))
+    },
+    deleteItinerary: (id) => {
+        return axiosInstance.delete(`/${id}`)
     },
     // getProductBySlug: (slug) => {
     //     return axiosInstance.get(`/products/${slug}`)

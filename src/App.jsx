@@ -12,7 +12,9 @@ import LandingPage from "./components/pages/landing_page";
 import ProtectedRoute from "./components/protected_routes";
 import GuestRoute from "./components/guest_route";
 import EditItinerary from "./components/pages/edit_itinerary";
+import TripPlanner from "./components/pages/trip_planner";
 import Trips from "./components/pages/trips";
+import { createTheme, makeStyles, ThemeProvider } from '@material-ui/core/styles';
 import Comments from "./components/comments";
 import Follow from "./components/follows";
 import UserProfile from "./components/pages/profile";
@@ -21,9 +23,21 @@ import Discover from "./components/pages/discover";
 import "./App.css";
 import Bucketlist from "./components/pages/bucketlist";
 
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#9c27b0',
+    },
+    secondary: {
+      main: '#e91e63',
+    },
+  },
+})
+
 function App() {
   return (
-    <Router>
+    <ThemeProvider theme={theme}>
+      <Router>
       <div className="App">
         <Navbar />
         <Switch>
@@ -35,10 +49,10 @@ function App() {
           <Route path="/discover/" component={Discover} />
           <GuestRoute path="/users/register" component={SignUp} />
           <GuestRoute path="/users/login" component={SignIn} />
-          <ProtectedRoute
-            path="/itinerary/view/:id"
-            component={EditItinerary}
-          />
+          <ProtectedRoute path="/itinerary/view/:id" component={EditItinerary} />
+          <ProtectedRoute path="/itinerary/edit/:id" component={EditItinerary} />
+          <ProtectedRoute path="/tripplanner" component={TripPlanner} />
+          <ProtectedRoute path="/users/profile" />
           <ProtectedRoute path="/itinerary/create/" component={EditItinerary} />
           <ProtectedRoute
             exact
@@ -66,6 +80,8 @@ function App() {
         <ToastContainer />
       </div>
     </Router>
+    </ThemeProvider>
+    
   );
 }
 

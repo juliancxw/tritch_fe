@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, withRouter } from "react-router-dom";
 import Cookies from "js-cookie";
-
+import logo  from '../images/logo.png'
 import { makeStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -14,6 +14,7 @@ import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import Grow from "@material-ui/core/Grow";
 import Paper from "@material-ui/core/Paper";
 import Popper from "@material-ui/core/Popper";
+import Box from '@material-ui/core/Box'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -25,6 +26,7 @@ const useStyles = makeStyles((theme) => ({
   title: {
     flexGrow: 1,
   },
+  appBarSpacer: theme.mixins.toolbar
 }));
 
 function Navbar(props) {
@@ -86,9 +88,18 @@ function Navbar(props) {
             color="inherit"
             className={classes.title}
           >
-            TRITCH
+            <Box mt={2} >
+              <img src={logo} alt="TRITCH" className={classes.logo} />
+            </Box>
+            
           </Typography>
-          <Button color="inherit">Trip Planner</Button>
+          <Button 
+            color="inherit"
+            component={Link}
+            to={"/tripplanner"}
+            >
+              Trip Planner
+            </Button>
           <Button component={Link} to="/discover" color="inherit">
             Discover
           </Button>
