@@ -1,5 +1,3 @@
-// zhenghan - overall skeleton
-// kharthik - follow components
 import React from "react";
 
 import { Grid } from "@material-ui/core";
@@ -7,6 +5,7 @@ import { Grid } from "@material-ui/core";
 import UserDisplayCard from "../user_display";
 
 function UserProfile() {
+    console.log("hello")
   return (
     <Grid
       container
