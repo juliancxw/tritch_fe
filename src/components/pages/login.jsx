@@ -1,5 +1,5 @@
-import React, { useState, useContext, useEffect } from "react";
-import { withRouter, Redirect } from "react-router";
+import React, { useState } from "react";
+import { withRouter } from "react-router";
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
 
@@ -43,8 +43,6 @@ function SignIn(props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  // const { setIsAuth } = useContext(AuthContext);
-
   function handleFormSubmission(e) {
     e.preventDefault();
 
@@ -58,7 +56,7 @@ function SignIn(props) {
         props.history.push("/");
       })
       .catch((err) => {
-        toast(err);
+        toast(err.response.data);
       });
   }
 
