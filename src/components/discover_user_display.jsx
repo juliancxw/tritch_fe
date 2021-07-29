@@ -53,7 +53,7 @@ function DiscoverUsersDisplay() {
   useEffect(() => {
     // call backend to get details of all users
     axios
-      .get(`http://localhost:8000/api/v1/users/show/all`)
+      .get(`https://tritch-be.herokuapp.com/api/v1/users/show/all`)
       .then((response) => {
         if (!response) {
           console.log(`shit!`);
@@ -90,7 +90,7 @@ function DiscoverUsersDisplay() {
 
   //     axios
   //       .patch(
-  //         `http://localhost:8000/api/v1/bucketlist/update`,
+  //         `https://tritch-be.herokuapp.com/api/v1/bucketlist/update`,
   //         {
   //           been_there: newBeenThere,
   //           userID: userId,

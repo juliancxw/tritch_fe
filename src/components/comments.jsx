@@ -62,7 +62,7 @@ function Comments(props) {
       const verifiedUserID = DecodeToken(Cookies.get("auth_token"));
       await axios
         .get(
-          `http://localhost:8000/api/v1/users/display-users/${verifiedUserID}`,
+          `https://tritch-be.herokuapp.com/api/v1/users/display-users/${verifiedUserID}`,
           { headers: headers }
         )
         .then((response) => {
@@ -78,7 +78,7 @@ function Comments(props) {
     //get comments of a itenarary
     const getComments = async () => {
       await axios
-        .get(`http://localhost:8000/api/v1/comments/itnerary/${itineraryID}`, {
+        .get(`https://tritch-be.herokuapp.com/api/v1/comments/itnerary/${itineraryID}`, {
           headers: headers,
         })
         .then((res) => {
@@ -131,7 +131,7 @@ function Comments(props) {
 
     await axios
       .put(
-        `http://localhost:8000/api/v1/comments/${commentparam._id}`,
+        `https://tritch-be.herokuapp.com/api/v1/comments/${commentparam._id}`,
         { comments: EditableComment },
         { headers: headers }
       )
@@ -152,7 +152,7 @@ function Comments(props) {
     setComments(tempComments);
 
     await axios
-      .delete(`http://localhost:8000/api/v1/comments/${comment._id}`, {
+      .delete(`https://tritch-be.herokuapp.com/api/v1/comments/${comment._id}`, {
         headers: headers,
       })
       .then(() => console.log("comment Deleted"))
@@ -182,7 +182,7 @@ function Comments(props) {
 
     await axios
       .post(
-        `http://localhost:8000/api/v1/comments/${userData._id}/itinerary/${itineraryID}/new`,
+        `https://tritch-be.herokuapp.com/api/v1/comments/${userData._id}/itinerary/${itineraryID}/new`,
         { comments: postComment },
         { headers: headers }
       )

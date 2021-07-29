@@ -64,7 +64,7 @@ function DiscoverItinerariesDisplay(props) {
   // call the backend to figure out current items in the user's bucketlist
   useEffect(() => {
     axios
-      .get(`http://localhost:8000/api/v1/bucketlist/${verifiedUserID}/view`, {
+      .get(`https://tritch-be.herokuapp.com/api/v1/bucketlist/${verifiedUserID}/view`, {
         headers: headers,
       })
       .then((response) => {
@@ -83,7 +83,7 @@ function DiscoverItinerariesDisplay(props) {
   useEffect(() => {
     // call backend to get all itineraries
     axios
-      .get(`http://localhost:8000/api/v1/itineraries`, { headers: headers })
+      .get(`https://tritch-be.herokuapp.com/api/v1/itineraries`, { headers: headers })
       .then((response) => {
         if (!response) {
           console.log(`shit!`);
@@ -102,7 +102,7 @@ function DiscoverItinerariesDisplay(props) {
   function addToBucketlist(e, itineraryId) {
     axios
       .post(
-        "http://localhost:8000/api/v1/bucketlist/add",
+        "https://tritch-be.herokuapp.com/api/v1/bucketlist/add",
         { userID: verifiedUserID, itinerariesID: itineraryId },
         { headers: headers }
       )
@@ -139,7 +139,7 @@ function DiscoverItinerariesDisplay(props) {
 
   //     axios
   //       .patch(
-  //         `http://localhost:8000/api/v1/bucketlist/update`,
+  //         `https://tritch-be.herokuapp.com/api/v1/bucketlist/update`,
   //         {
   //           been_there: newBeenThere,
   //           userID: userId,

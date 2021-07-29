@@ -53,7 +53,7 @@ function UserDisplayCard() {
     console.log(userid);
 
     axios
-      .get(`http://localhost:8000/api/v1/users/show/${userToRender}`, {
+      .get(`https://tritch-be.herokuapp.com/api/v1/users/show/${userToRender}`, {
         headers: headers,
       })
       .then((response) => {
@@ -72,7 +72,7 @@ function UserDisplayCard() {
   // // get people who follows user
   // useEffect(() => {
   //   axios
-  //     .get(`http://localhost:8000/api/v1/following/${userToRender}`, {
+  //     .get(`https://tritch-be.herokuapp.com/api/v1/following/${userToRender}`, {
   //       headers: headers,
   //     })
   //     .then((response) => {
