@@ -8,4 +8,7 @@
     transform-origin: top;
         color: rgba(0, 0, 0, 0.54);
   }
- 
+  .fc .fc-timegrid-slot {
+    height: 3em !important;
+   
+}

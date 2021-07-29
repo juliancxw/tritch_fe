@@ -9,8 +9,8 @@ const axiosInstance = axios.create({
 
 const attractionsAPI = {
     
-    search: (location) => {
-        return axiosInstance.get(`/singapore/${location}`)
+    search: (location, latlong) => {
+        return axiosInstance.get(`${location}/${latlong}`)
     },
 }
 
