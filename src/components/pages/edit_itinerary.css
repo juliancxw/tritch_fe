@@ -1,0 +1,11 @@
+.inputBold .MuiInput-root {
+    font-weight: bold;
+    padding: 2px 4px;
+    /* width: 100%; */
+  }
+  .MuiFormControlLabel-label {
+    transform: scale(0.75);
+    transform-origin: top;
+        color: rgba(0, 0, 0, 0.54);
+  }
+ 
