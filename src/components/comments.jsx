@@ -109,63 +109,6 @@ function Comments(props) {
     setEditableComment(comment.comments);
   };
 
-  //It is must to pass the iternrary ID in the route so that this component can be used
-  const itineraryID = useParams().itineraryid;
-
-  const headers = {
-    auth_token: Cookies.get("auth_token"),
-  };
-
-  //UseEffect Hook
-  useEffect(() => {
-    setIsLoading(true);
-
-    //Fetching the data of the logedIn User
-    const getUserData = async () => {
-      const verifiedUserID = DecodeToken(Cookies.get("auth_token"));
-      await axios
-        .get(`https://tritch-be.herokuapp.com/api/v1/show/${verifiedUserID}`, {
-          headers: headers,
-        })
-        .then((response) => {
-          setUserData(response.data);
-        })
-        .catch((err) => {
-          if (!err.response.data) {
-            toast(`server error...`);
-          }
-          toast(err.response.data);
-        });
-    };
-    //Fetching the comments of the particular itenarary
-    const getComments = async () => {
-      await axios
-        .get(
-          `https://tritch-be.herokuapp.com/api/v1/comments/itnerary/${itineraryID}`,
-          { headers: headers }
-        )
-        .then((res) => {
-          console.log(res.data);
-          let temp = [];
-          for (let i = 0; i < res.data.length; i++) temp.push(false);
-
-          setIsEdit(temp);
-
-          setComments(res.data);
-          setIsLoading(false);
-        })
-        .catch((err) => {
-          if (!err.response.data) {
-            toast(`server error...`);
-          }
-          toast(err.response.data);
-          setIsLoading(false);
-        });
-    };
-    getUserData();
-    getComments();
-  }, []);
-
   //Function to handle the cancel button - When User wants to cancel the edited comment to its previous state
   const handleCancel = (index) => {
     setIsEdit((v) => {
