@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react"
 import { withRouter, Redirect } from "react-router";
 import debounce from "lodash.debounce"
-import "./edit_itinerary.css"
+import "./view_itinerary.css"
 import { Helmet } from 'react-helmet'
 import { useParams } from "react-router-dom"
 import Cookies from "js-cookie";
@@ -48,6 +48,7 @@ import Avatar from '@material-ui/core/Avatar';
 import IconButton from '@material-ui/core/IconButton';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import moment from 'moment'
+import Comments from "../comments";
 
 
 
@@ -65,7 +66,7 @@ function a11yProps(index) {
 
   
 
-function Itinerary(props) {
+function ViewItinerary(props) {
     
     // <<<<<States>>>>>
 
@@ -163,31 +164,7 @@ function Itinerary(props) {
        else console.log("invalid")       
      },[searchedCity])
     
-    // Add draggable function to attractions
-    useEffect(() => {
-        let draggableEl = document.getElementById("external-events");
-
-            new Draggable(draggableEl, {
-                itemSelector: ".fc-event",
-                eventData: function (eventEl) {
-                    console.log(eventEl)
-                    let title = eventEl.getAttribute("title");
-                    let id = eventEl.getAttribute("data");
-                    let image = eventEl.getAttribute("image");
-                    return {
-                    title: title,
-                    id: id,
-                    extendedProps: {
-                        image: image
-                    }
-                    
-                    };
-                }
-               
-            });
-        
-        
-    }, [])
+    
 
     // Autosave changes to trip itinerary whenever state changes
     // Lodash function to save object to database but set delay
@@ -464,25 +441,27 @@ function Itinerary(props) {
         let start = moment.parseZone(eventInfo.event.start).format('h:mm a')
         let end = moment.parseZone(eventInfo.event.end).format('h:mm a')
         return (
-            
-            <Card style={{backgroundColor: "#ce93d8", height:"100%"}}>
-            <CardHeader
-            avatar={
-                <Avatar aria-label="avartar" style={{backgroundColor: "#fff", color: "#ccc"}}src={eventInfo.event.extendedProps.image}>
-                E
-                </Avatar>
-            }
-            action={
-                <IconButton aria-label="settings">
-                  <MoreVertIcon />
-                </IconButton>
-              }
-            title={eventInfo.event.title}
-            titleTypographyProps={{variant:'subtitle1' }}
-            subheader= {`${start} - ${end}`}
-            />
+            <Box zIndex="modal">
+                <Card style={{backgroundColor: "#ce93d8", height:"100%" }}>
+                    <CardHeader
+                    avatar={
+                        <Avatar aria-label="avartar" style={{backgroundColor: "#fff", color: "#ccc"}}src={eventInfo.event.extendedProps.image}>
+                        E
+                        </Avatar>
+                    }
+                    action={
+                        <IconButton aria-label="settings">
+                        <MoreVertIcon />
+                        </IconButton>
+                    }
+                    title={eventInfo.event.title}
+                    titleTypographyProps={{variant:'subtitle1' }}
+                    subheader= {`${start} - ${end}`}
+                    />
                 
-            </Card>
+                </Card>
+            </Box>
+            
                 
         )
     }
@@ -609,6 +588,7 @@ function Itinerary(props) {
                                 
                                 id="itineraryName"
                                 className={classes.input}
+                                disabled={true}
                                 label="Name"
                                 defaultValue="Name"
                                 value={itinerary ? itinerary.name : 'Name'}
@@ -626,6 +606,7 @@ function Itinerary(props) {
                                 groupBy={(autoCities) => autoCities.destination_type}
                                 getOptionLabel={(autoCities) => autoCities.name}
                                 style={{ width: "30%" }}
+                                disabled={true}
                                 // getOptionSelected={(autoCities, value) => {return value.slug}}
                                 // value={searchQuery}
                                 loading={destiLoading}
@@ -659,8 +640,9 @@ function Itinerary(props) {
                                 renderInput={(params) => (
                                 <TextField 
                                     {...params} 
+                                    disabled={true}
                                     label="Destination" 
-                                    
+                                    disabled={true}
                                     InputProps={{
                                         ...params.InputProps,
                                         endAdornment: (
@@ -675,6 +657,7 @@ function Itinerary(props) {
                             />
                             <TextField
                                 id="trip_duration"
+                                disabled={true}
                                 className={classes.input}
                                 label="Duration"
                                 defaultValue="1"
@@ -692,22 +675,6 @@ function Itinerary(props) {
                                 
                             />
                             
-                            <FormControlLabel
-                                control={<Switch
-                                    size="small"
-                                    color="primary"
-                                    checked={itinerary ? itinerary.published : true}
-                                    value={itinerary ? itinerary.published : 0}
-                                    onChange={(e) => setItinerary(prevState => ({
-                                        ...prevState,
-                                        published: e.target.checked
-                                    }))}
-                                    name="published"
-                                    inputProps={{ 'aria-label': 'published' }}
-                                />}
-                                label="Published"
-                                labelPlacement="top"
-                            />
                         </FormGroup>
                     </Box>
                     
@@ -727,57 +694,53 @@ function Itinerary(props) {
                                 </Button>
                                 {loading && <CircularProgress size={24} className={classes.buttonProgress} />}
                             </div>
-                            <div className={classes.wrapper}>
-                                <Button
-                                    variant="contained"
-                                    color="Secondary"
-                                    onClick={handleDeleteButtonClick}
-                                    startIcon={<DeleteIcon />}
-                                    >
-                                    Delete
-                                </Button>
-                            </div>
+                       
                         </FormGroup>
                     </Box>                    
                 </Paper>
                         
                 <Box width={1 / 4} position="absolute" >
+                    
                     <Paper style={{height: '80vh'}}>
-                            
                         <Box display="block" p={1} m={1} >
                             <Typography variant="overline">
-                                Attractions
+                                Itinerary
                             </Typography>
                         </Box>
-
-                        <Box style={{maxHeight: '70vh', overflow: 'auto'}}  display="block" p={1} m={1} textAlign='center'>
-                            <div id="external-events">
+                       
+                       
+                            {itinerary ? 
                             
-                                {attractions
-                                    ? attractions.map((item) => {
-                                        return (
-                                            <Card className={`${classes.card} fc-event`} title={item.name} image={item.photoUrl}>
-                                        
-                                                <CardMedia
-                                                    className={classes.media}
-                                                    image={item.photoUrl}
-                                                    
-                                                />
-                                                <CardContent>
-                                                    {item.name}
-                                                                
-                                                    <Rating name="rating" readOnly="true" value={Math.round(item.rating * 2)/2} precision={0.5} />
-                                                </CardContent>
+                                <FullCalendar
+                                    rerenderDelay={10}
+                                    ref={calendarRef}
+                                    plugins={[ listPlugin, interactionPlugin ]}
+                                    initialView={"listMonth"}
+                                    dragRevertDuration={0}
+                                    headerToolbar={ false }
+                                    height={ "60vh" }
+                                    // listDayFormat={{day:'numeric'}}
+                                    initialDate={"2050-01-01"}
+                                    dayHeaderContent= {(args) => {
+                                        return "Day " + moment(args.date).format('D')
+                                    }} 
                                     
-                                            </Card>
-                                        )
-                                
-                                    })
-                                    : <CircularProgress/>
-                                }
-                            </div>
-                        </Box>
+                                    eventClick={eventClick}
+                                    // eventChange={eventChange}
+                                    // drop={eventChange}
+                                    
+                                    events={itinerary.itinerary}
+                                    
+                                    eventContent={ renderEventContent}
+                                    eventBackgroundColor={'#ce93d8'}
+                                    eventBorderColor={'#fff'}
+                                 
+                                    
+                                /> 
+                            : <CircularProgress/>}   
                         
+                        
+                    
                     </Paper>
                 </Box>
                         
@@ -785,68 +748,8 @@ function Itinerary(props) {
                         
                 <Box width={1 / 4} position="absolute" right={24}>
                     <Paper style={{height: '80vh'}}>
-                        <Box display="block" p={1} m={1} >
-                            <Typography variant="overline">
-                                Itinerary
-                            </Typography>
-                        </Box>
-                        <Tabs
-                        value={daySelection}
-                        onChange={handleChange}
-                        indicatorColor="primary"
-                        textColor="primary"
-                        variant="scrollable"
-                        scrollButtons="auto"
-                        aria-label="Day Selector Tab"
-                        
-                        >
-                            {itinerary
-                                    ? [...Array(itinerary.trip_duration)].map(
-                                        (element, index) => (
-                                            <Tab label={<React.Fragment>
-                                                Day<br />
-                                                {index + 1}
-                                            </React.Fragment>}{...a11yProps(index)} classes={{root: classes.tab}}/>
-                                        )
-                                    )
-                                : <CircularProgress/>
-                            }
-                                    
-                        </Tabs>
-                        <Box>
-                            {itinerary ? 
-                            
-                                <FullCalendar
-                                    rerenderDelay={10}
-                                    ref={calendarRef}
-                                    plugins={[ timeGridPlugin, interactionPlugin ]}
-                                    initialView="timeGridDay"
-                                    editable={ true }
-                                    droppable={true}
-                                    dragRevertDuration={0}
-                                    headerToolbar={ false }
-                                    height={ "60vh" }
-                                    allDaySlot={ false }
-                                    scrollTime={ '07:00:00'}
-                                    dayHeaderContent= {"Day "+ (daySelection + 1)} 
-                                    initialDate={"2050-01-01"}
-                                    eventClick={eventClick}
-                                    // eventChange={eventChange}
-                                    // drop={eventChange}
-                                    eventsSet={eventChange}
-                                    initialEvents={itinerary.itinerary}
-                                    forceEventDuration={ true }
-                                    eventContent={ renderEventContent}
-                                    eventBackgroundColor={'#ce93d8'}
-                                    eventBorderColor={'#fff'}
-                                    slotEventOverlap={false}
-                                    
-                                /> 
-                            : <CircularProgress/>}   
-                        </Box>
-                        
-                    </Paper>
-                            
+                        <Comments/>
+                    </Paper>    
                 </Box>
             
             </Container>
@@ -859,5 +762,5 @@ function Itinerary(props) {
 
 }
 
-export default withRouter(Itinerary)
+export default withRouter(ViewItinerary)
 
