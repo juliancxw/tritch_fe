@@ -72,7 +72,7 @@ function BucketlistDisplay() {
     // call api to get bucketlist of userID
     axios
       .get(
-        `http://localhost:8000/api/v1/bucketlist/${userToRender}/view`,
+        `https://tritch-be.herokuapp.com/api/v1/bucketlist/${userToRender}/view`,
 
         {
           headers: headers,
@@ -113,7 +113,7 @@ function BucketlistDisplay() {
 
     axios
       .patch(
-        `http://localhost:8000/api/v1/bucketlist/update`,
+        `https://tritch-be.herokuapp.com/api/v1/bucketlist/update`,
         {
           been_there: newBeenThere,
           userID: userId,

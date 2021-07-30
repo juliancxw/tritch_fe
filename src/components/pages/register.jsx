@@ -47,7 +47,7 @@ function SignUp(props) {
     e.preventDefault();
 
     axios
-      .post("http://localhost:8000/api/v1/users/register", {
+      .post("https://tritch-be.herokuapp.com/api/v1/users/register", {
         firstName: firstName,
         lastName: lastName,
         email: email,
