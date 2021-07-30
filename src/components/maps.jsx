@@ -16,17 +16,10 @@ function Maps(props) {
     id: 'google-map-script',
     googleMapsApiKey: "AIzaSyA0J11Yrneq4iE90Gh29MEsTyDEs7C9zEE"
   })
-  const [center, setCenter] = useState()
+  
   console.log(props.lng)
   
-  useEffect(() => {
-    setCenter({
-        lat: props.lat,
-        lng: props.lng
-      })
-  })
-
-  
+   
 
   const [map, setMap] = useState(null)
 
@@ -43,7 +36,7 @@ function Maps(props) {
   return isLoaded ? (
       <GoogleMap
         mapContainerStyle={containerStyle}
-        center={center}
+        center={props.center}
         zoom={10}
         onLoad={onLoad}
         onUnmount={onUnmount}
