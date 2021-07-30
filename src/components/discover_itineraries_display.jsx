@@ -15,6 +15,7 @@ import {
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import decodeToken from "../services/token_decoder";
+import { toast } from "react-toastify";
 
 const useStyles = makeStyles((theme) => ({
   icon: {
@@ -53,6 +54,8 @@ function DiscoverItinerariesDisplay(props) {
   const [allItineraries, setAllItineraries] = useState([]);
   const [userBucketlist, setUserBucketlist] = useState([]);
   const [addBucketlist, setAddBucketlist] = useState([]);
+
+  let isItemInBucketlist;
   const authToken = Cookies.get("auth_token");
 
   const verifiedUserID = decodeToken(authToken);
@@ -64,9 +67,12 @@ function DiscoverItinerariesDisplay(props) {
   // call the backend to figure out current items in the user's bucketlist
   useEffect(() => {
     axios
-      .get(`https://tritch-be.herokuapp.com/api/v1/bucketlist/${verifiedUserID}/view`, {
-        headers: headers,
-      })
+      .get(
+        `https://tritch-be.herokuapp.com/api/v1/bucketlist/${verifiedUserID}/view`,
+        {
+          headers: headers,
+        }
+      )
       .then((response) => {
         if (!response) {
           console.log("response not found");
@@ -83,11 +89,13 @@ function DiscoverItinerariesDisplay(props) {
   useEffect(() => {
     // call backend to get all itineraries
     axios
-      .get(`https://tritch-be.herokuapp.com/api/v1/itineraries`, { headers: headers })
+      .get(`https://tritch-be.herokuapp.com/api/v1/itineraries`, {
+        headers: headers,
+      })
       .then((response) => {
         if (!response) {
           console.log(`shit!`);
-          return
+          return;
         }
         setAllItineraries(response.data.itineraries);
       })
@@ -103,13 +111,19 @@ function DiscoverItinerariesDisplay(props) {
     axios
       .post(
         "https://tritch-be.herokuapp.com/api/v1/bucketlist/add",
-        { userID: verifiedUserID, itinerariesID: itineraryId },
+        {
+          userID: verifiedUserID,
+          itinerariesID: itineraryId,
+          been_there: false,
+        },
         { headers: headers }
       )
       .then((response) => {
-        console.log(response);
+        console.log(response.data);
+        toast("Added to bucketlist!");
       })
       .catch((err) => {
+        toast(err.response.data);
         console.log(err);
       });
   }
@@ -162,7 +176,7 @@ function DiscoverItinerariesDisplay(props) {
   return (
     <React.Fragment>
       <CssBaseline />
-      <main>
+      <main style={{ paddingTop: "20px" }}>
         {/* Hero unit */}
         <div className={classes.heroContent}>
           <Container maxWidth="sm">
@@ -189,11 +203,11 @@ function DiscoverItinerariesDisplay(props) {
           {/* End hero unit */}
           <Grid container spacing={4}>
             {allItineraries.map((item, index) => (
-              <Grid item key={item} xs={12} sm={6} md={4}>
+              <Grid item key={index} xs={12} sm={6} md={4}>
                 <Card className={classes.card}>
                   <CardMedia
                     className={classes.cardMedia}
-                    image={`https://source.unsplash.com/featured/?people`}
+                    image={""}
                     title="Image title"
                   />
                   <CardContent className={classes.cardContent}>
@@ -244,4 +258,4 @@ function DiscoverItinerariesDisplay(props) {
 }
 
 export default DiscoverItinerariesDisplay;
-// 
+//

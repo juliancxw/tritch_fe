@@ -1,20 +1,23 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, withRouter } from "react-router-dom";
 import Cookies from "js-cookie";
-import logo  from '../images/logo.png'
+import logo from "../images/logo.png";
 import { makeStyles } from "@material-ui/core/styles";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import Typography from "@material-ui/core/Typography";
-import Button from "@material-ui/core/Button";
-import IconButton from "@material-ui/core/IconButton";
-import MenuItem from "@material-ui/core/MenuItem";
-import MenuList from "@material-ui/core/MenuList";
-import ClickAwayListener from "@material-ui/core/ClickAwayListener";
-import Grow from "@material-ui/core/Grow";
-import Paper from "@material-ui/core/Paper";
-import Popper from "@material-ui/core/Popper";
-import Box from '@material-ui/core/Box'
+import {
+  AppBar,
+  Avatar,
+  Toolbar,
+  Typography,
+  Button,
+  IconButton,
+  MenuItem,
+  MenuList,
+  ClickAwayListener,
+  Grow,
+  Paper,
+  Popper,
+  Box,
+} from "@material-ui/core/";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -26,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
   title: {
     flexGrow: 1,
   },
-  appBarSpacer: theme.mixins.toolbar
+  appBarSpacer: theme.mixins.toolbar,
 }));
 
 function Navbar(props) {
@@ -88,18 +91,13 @@ function Navbar(props) {
             color="inherit"
             className={classes.title}
           >
-            <Box mt={2} >
+            <Box mt={2}>
               <img src={logo} alt="TRITCH" className={classes.logo} />
             </Box>
-            
           </Typography>
-          <Button 
-            color="inherit"
-            component={Link}
-            to={"/tripplanner"}
-            >
-              Trip Planner
-            </Button>
+          <Button color="inherit" component={Link} to={"/tripplanner"}>
+            Trip Planner
+          </Button>
           <Button component={Link} to="/discover" color="inherit">
             Discover
           </Button>
@@ -112,7 +110,11 @@ function Navbar(props) {
                 aria-haspopup="true"
                 onClick={handleToggle}
               >
-                Dashboard
+                <Avatar
+                  alt="Remy Sharp"
+                  src="/static/images/avatar/1.jpg"
+                  className={classes.large}
+                />
               </Button>
               <Popper
                 open={open}
@@ -143,19 +145,15 @@ function Navbar(props) {
                           >
                             My Profile
                           </MenuItem>
-                          <MenuItem
-                            component={Link}
-                            to={`/users/itineraries`}
-                            onClick={handleClose}
-                          >
-                            My Itineraries
-                          </MenuItem>
-                          <MenuItem
-                            component={Link}
-                            to={`/users/bucketlist`}
-                            onClick={handleClose}
-                          >
-                            My Bucketlist
+                          <MenuItem>
+                            <Button
+                              onClick={(e) => {
+                                handleLogout(e);
+                              }}
+                              color="inherit"
+                            >
+                              Logout
+                            </Button>
                           </MenuItem>
                         </MenuList>
                       </ClickAwayListener>
@@ -163,14 +161,6 @@ function Navbar(props) {
                   </Grow>
                 )}
               </Popper>
-              <Button
-                onClick={(e) => {
-                  handleLogout(e);
-                }}
-                color="inherit"
-              >
-                Logout
-              </Button>
             </div>
           ) : (
             <div className="unauthenticatedOnly">
