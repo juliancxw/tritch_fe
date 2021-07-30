@@ -17,9 +17,10 @@ const itineraryAPI = {
     getItinerary: (id) => {
         return axiosInstance.get(`/view/${id}`)
     },
-    createItinerary: (destination, userId) => {
+    createItinerary: (destination, userId, image) => {
         console.log("contacting itinerary api")
         return axiosInstance.post(`/`, qs.stringify({
+            image: image,
             destination: destination,
             creator: userId
 
