@@ -94,6 +94,10 @@ function Itinerary(props) {
               zoom: 11 
         }
     )
+    const [center, setCenter] = useState({
+        lat: 59.95,
+        lng: 30.33
+      })
 
     const [autoCities, setAutoCities] = useState([])
 
@@ -258,7 +262,12 @@ function Itinerary(props) {
             console.log(error)
         }
         console.log(attractionsData)
-        
+        setCenter({
+            
+                lat: destination.data.data.lat,
+                lng:destination.data.data.long
+           
+        })
         setAttractions(attractionsData.data)
         setDestination(destination.data.data)
         setSelectedDestination(Object.assign({},{
@@ -564,7 +573,9 @@ function Itinerary(props) {
       });
    
     const AnyReactComponent = ( {text} ) => <div>{text}</div>
-
+   
+       
+     
     return(
         
         <div className={classes.root}>
@@ -572,8 +583,10 @@ function Itinerary(props) {
             <div className={classes.map} style={{ height: '100vh', width: '100%' }}>
                 <GoogleMapReact
                 bootstrapURLKeys={{ key: "AIzaSyA0J11Yrneq4iE90Gh29MEsTyDEs7C9zEE" }}
-                defaultCenter={maps.center}
-                defaultZoom={maps.zoom}
+                center={center}
+                zoom={maps.zoom}
+                yesIWantToUseGoogleMapApiInternals
+ 
                 options={createMapOptions}>
                 
                 
