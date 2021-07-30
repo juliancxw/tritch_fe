@@ -78,8 +78,7 @@ function Follow(props) {
 
 
   useEffect(() => {
-    setIsLoading(true);
-    getUserData();
+      getUserData();
     getFollowers();
     getProfileData();
   },[]);
@@ -104,28 +103,37 @@ function Follow(props) {
       });
   };
   //get followers of  Profile
-  const getFollowers = () => {
-     axios
+  const getFollowers = async () => {
+    let followingData 
+    let followedByUser
+    try {
+       followingData = await axios
       .get(`http://localhost:8000/api/v1/following/${profileID}`, {
         headers: headers,
       })
-      .then((res) => {
-        console.log(res.data)
-        setFollowers(res.data);
-       
-        let followedByUser = followers.followers.find(x => x._id === userid )
-        if (followedByUser){
-          setIsFollowed(true)
-        }
-       
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        toast(err);
-        setIsLoading(false);
-        
-      });
+    }
+    catch(err) {
+      console.log(err)
+    }
       
+    console.log(followingData.data)
+    setFollowers(followingData.data);
+    
+    try {
+      followedByUser = await followingData.data.followers.find(x => x.user._id == verifiedUserID )
+    }
+    catch(err) {
+      console.log(err)
+    }
+    if (followedByUser){
+      setIsFollowed(true)
+    } else{
+      setIsFollowed(false)
+    }
+    console.log(followingData.data)
+    setFollowers(followingData.data);
+    
+          
   };
   
   //get the data the Profile
@@ -163,7 +171,7 @@ function Follow(props) {
       console.log(err)
     }
         console.log("Followed");
-        setIsFollowed(true);
+        // setIsFollowed(true);
         getFollowers()
       
   };
@@ -183,7 +191,7 @@ function Follow(props) {
         console.log(err)
      
     }
-    setIsFollowed(false);
+    // setIsFollowed(false);
     getFollowers()
       
   };
