@@ -53,6 +53,8 @@ function DiscoverItinerariesDisplay(props) {
   const [allItineraries, setAllItineraries] = useState([]);
   const [userBucketlist, setUserBucketlist] = useState([]);
   const [addBucketlist, setAddBucketlist] = useState([]);
+
+  let isItemInBucketlist;
   const authToken = Cookies.get("auth_token");
 
   const verifiedUserID = decodeToken(authToken);
@@ -64,9 +66,12 @@ function DiscoverItinerariesDisplay(props) {
   // call the backend to figure out current items in the user's bucketlist
   useEffect(() => {
     axios
-      .get(`https://tritch-be.herokuapp.com/api/v1/bucketlist/${verifiedUserID}/view`, {
-        headers: headers,
-      })
+      .get(
+        `https://tritch-be.herokuapp.com/api/v1/bucketlist/${verifiedUserID}/view`,
+        {
+          headers: headers,
+        }
+      )
       .then((response) => {
         if (!response) {
           console.log("response not found");
@@ -83,11 +88,13 @@ function DiscoverItinerariesDisplay(props) {
   useEffect(() => {
     // call backend to get all itineraries
     axios
-      .get(`https://tritch-be.herokuapp.com/api/v1/itineraries`, { headers: headers })
+      .get(`https://tritch-be.herokuapp.com/api/v1/itineraries`, {
+        headers: headers,
+      })
       .then((response) => {
         if (!response) {
           console.log(`shit!`);
-          return
+          return;
         }
         setAllItineraries(response.data.itineraries);
       })
@@ -107,7 +114,7 @@ function DiscoverItinerariesDisplay(props) {
         { headers: headers }
       )
       .then((response) => {
-        console.log(response);
+        console.log(response.data);
       })
       .catch((err) => {
         console.log(err);
@@ -162,7 +169,7 @@ function DiscoverItinerariesDisplay(props) {
   return (
     <React.Fragment>
       <CssBaseline />
-      <main>
+      <main style={{ paddingTop: "20px" }}>
         {/* Hero unit */}
         <div className={classes.heroContent}>
           <Container maxWidth="sm">
@@ -188,54 +195,58 @@ function DiscoverItinerariesDisplay(props) {
         <Container className={classes.cardGrid} maxWidth="md">
           {/* End hero unit */}
           <Grid container spacing={4}>
-            {allItineraries.map((item, index) => (
-              <Grid item key={item} xs={12} sm={6} md={4}>
-                <Card className={classes.card}>
-                  <CardMedia
-                    className={classes.cardMedia}
-                    image={`https://source.unsplash.com/featured/?people`}
-                    title="Image title"
-                  />
-                  <CardContent className={classes.cardContent}>
-                    <Typography gutterBottom variant="h5">
-                      {item.name}
-                    </Typography>
-                    <Typography variant="subtitle1">
-                      Created By:{" "}
-                      <Link
-                        style={{ textDecoration: "none" }}
-                        to={`users/profile/${item.creator[0]._id}`}
+            {allItineraries.map((item, index) =>
+              item.published ? (
+                <Grid item key={index} xs={12} sm={6} md={4}>
+                  <Card className={classes.card}>
+                    <CardMedia
+                      className={classes.cardMedia}
+                      image={""}
+                      title="Image title"
+                    />
+                    <CardContent className={classes.cardContent}>
+                      <Typography gutterBottom variant="h5">
+                        {item.name}
+                      </Typography>
+                      <Typography variant="subtitle1">
+                        Created By:{" "}
+                        <Link
+                          style={{ textDecoration: "none" }}
+                          to={`users/profile/${item.creator[0]._id}`}
+                        >
+                          {item.creator[0].firstName}
+                        </Link>
+                      </Typography>
+                      <Typography variant="subtitle1">
+                        Trip Duration: {item.trip_duration} days
+                      </Typography>
+                    </CardContent>
+                    <CardActions>
+                      <Button
+                        component={Link}
+                        to={`/itinerary/view/${item._id}`}
+                        size="small"
+                        color="primary"
                       >
-                        {item.creator[0].firstName}
-                      </Link>
-                    </Typography>
-                    <Typography variant="subtitle1">
-                      Trip Duration: {item.trip_duration} days
-                    </Typography>
-                  </CardContent>
-                  <CardActions>
-                    <Button
-                      component={Link}
-                      to={`/itinerary/view/${item._id}`}
-                      size="small"
-                      color="primary"
-                    >
-                      View
-                    </Button>
+                        View
+                      </Button>
 
-                    <Button
-                      onClick={(e) => {
-                        addToBucketlist(e, item._id);
-                      }}
-                      size="small"
-                      color="primary"
-                    >
-                      Add to Bucketlist
-                    </Button>
-                  </CardActions>
-                </Card>
-              </Grid>
-            ))}
+                      <Button
+                        onClick={(e) => {
+                          addToBucketlist(e, item._id);
+                        }}
+                        size="small"
+                        color="primary"
+                      >
+                        Add to Bucketlist
+                      </Button>
+                    </CardActions>
+                  </Card>
+                </Grid>
+              ) : (
+                ""
+              )
+            )}
           </Grid>
         </Container>
       </main>
@@ -244,4 +255,4 @@ function DiscoverItinerariesDisplay(props) {
 }
 
 export default DiscoverItinerariesDisplay;
-// 
+//
