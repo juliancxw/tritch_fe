@@ -97,7 +97,11 @@ function Itinerary(props) {
     const [searchedCity, setSearchedCity] = useState()
 
     // Google Maps
-    const [center, setCenter] = useState()
+    const [center, setCenter] = useState({
+        lat: 22.28552,
+        lng: 114.15769
+        })
+    const [destinationLoaded, setDestinationLoaded]  = useState(false)
 
 
   
@@ -118,28 +122,28 @@ function Itinerary(props) {
        
     },[])
 
-        // Lodash function to delay frequency of autosearch
-        const debouncedSearch = useCallback(
-            debounce(async (searchQuery) => {
-                
-            let results = await citiesAPI.autoSearch(searchQuery);
-            console.log(results.data)  
-            setAutoCities(results.data.data)
-                
-            }, 500),
-            [],
-        );
-    
-        // Run Autosearch when query input changes
-        useEffect(() => {
-            let active = true;
+    // Lodash function to delay frequency of autosearch
+    const debouncedSearch = useCallback(
+        debounce(async (searchQuery) => {
             
-            // Search only after more than 2 characters typed
-            if (searchQuery.length > 2){
-                debouncedSearch(searchQuery)
-             
-            }   
-        },[searchQuery, debouncedSearch])
+        let results = await citiesAPI.autoSearch(searchQuery);
+        console.log(results.data)  
+        setAutoCities(results.data.data)
+            
+        }, 500),
+        [],
+    );
+    
+    // Run Autosearch when query input changes
+    useEffect(() => {
+        let active = true;
+        
+        // Search only after more than 2 characters typed
+        if (searchQuery.length > 2){
+            debouncedSearch(searchQuery)
+            
+        }   
+    },[searchQuery, debouncedSearch])
     
 
     // Retrieve attractions based on destination
@@ -202,10 +206,22 @@ function Itinerary(props) {
         };
       }, []);
 
-    //   useEffect(() => {
-    //     console.log(`i am ${searchedCity}`)
-    //   }, [searchedCity]);
+
     
+
+    // Set map center acoording to destination data
+    useEffect(() => {
+    
+        if(destinationLoaded){
+            setCenter({
+                lat: Number(destination.lat),
+                lng: Number(destination.long)
+                })
+        }
+   
+    },[destinationLoaded])
+
+
     // <<<<< Functions >>>>>
 
   
@@ -249,18 +265,19 @@ function Itinerary(props) {
         catch (error) {
             console.log(error)
         }
-        console.log(attractionsData)
-        setAttractions(attractionsData.data)
-        setDestination(destinationData.data.data)
-        setSelectedDestination(Object.assign({},{
+        
+        await setAttractions(attractionsData.data)
+        await setDestination(destinationData.data.data)
+        await setSelectedDestination(Object.assign({},{
             slug: destinationData.data.data.slug,
             name: destinationData.data.data.longName,
             destinationType: destinationData.data.data.destinationType
         }))
-        setCenter({
-            lat: Number(destinationData.data.data.lat),
-            lng: Number(destinationData.data.data.long)
-          })
+        setDestinationLoaded(true)
+       
+          
+        
+       
     }
     
     // Function to update itinerary by id
@@ -412,39 +429,8 @@ function Itinerary(props) {
     
     };
 
-    // Function to retrieve city data by slug
-  
-    // const getCity = async (slug) => {
-    //     let searchedCityData
-    //     try {
-    //         searchedCityData = await citiesAPI.search(slug)
-    //     }
-    //     catch (error) {
-    //         console.log(error)
-    //         return
-    //     }
-    //     setDestination(searchedCityData.data.data)
-    //     // setSelectedDestination({
-    //     //     slug: searchedCityData.data.data.slug,
-    //     //     name: searchedCityData.data.data.longName,
-    //     //     destinationType: searchedCityData.data.data.destinationType
-    //     // })
-    //     console.log(`Hello ${searchedCityData.data.data.slug}`)
-    //   }    
 
-
-    function createMapOptions(maps) {
-        // next props are exposed at maps
-        // "Animation", "ControlPosition", "MapTypeControlStyle", "MapTypeId",
-        // "NavigationControlStyle", "ScaleControlStyle", "StrokePosition", "SymbolPath", "ZoomControlStyle",
-        // "DirectionsStatus", "DirectionsTravelMode", "DirectionsUnitSystem", "DistanceMatrixStatus",
-        // "DistanceMatrixElementStatus", "ElevationStatus", "GeocoderLocationType", "GeocoderStatus", "KmlLayerStatus",
-        // "MaxZoomStatus", "StreetViewStatus", "TransitMode", "TransitRoutePreference", "TravelMode", "UnitSystem"
-        return {
-
-          disableDefaultUI: true,
-        };
-      }
+    
 
     function renderEventContent(eventInfo) {
         let start = moment.parseZone(eventInfo.event.start).format('h:mm a')
@@ -480,7 +466,7 @@ function Itinerary(props) {
         root: {
 
             //   backgroundColor: theme.palette.background.paper,
-            marginTop: theme.spacing(2),
+            marginTop: '0px',
         },
         paper: {
             marginBottom: theme.spacing(2),
@@ -565,266 +551,273 @@ function Itinerary(props) {
     return(
         
         <div className={classes.root}>
-            {destination
-            ? <Maps center = {center}/>
-        : <CircularProgress/>
-        }
+            <Box mt={-3}>
+                {center
+                    ? <Maps center = {center} attractions = {attractions}/>
+                    : <CircularProgress/>
+                }
+            </Box>
+            <Box  mt={2}>
+                ..   
+            </Box>
             
            
-            
-            
-            <Container maxWidth="xl" mt={2} classes={{root: classes.panels}}>
-                <Helmet>
-                    <title>Itinerary</title>
-                </Helmet>
-                <Paper  className={classes.paper} >
-                    <Box flexGrow={1}>
-                        <FormGroup aria-label="published" row>
-                            <TextField
-                                
-                                id="itineraryName"
-                                className={classes.input}
-                                label="Name"
-                                defaultValue="Name"
-                                value={itinerary ? itinerary.name : 'Name'}
-                                // variant="outlined"
-                                onChange={(e) => setItinerary(prevState => ({
-                                    ...prevState,
-                                    name: e.target.value
-                                }))}
-                            
-                            />
-   
-                             <Autocomplete
-                                id="grouped-demo"
-                                options={autoCities}
-                                groupBy={(autoCities) => autoCities.destination_type}
-                                getOptionLabel={(autoCities) => autoCities.name}
-                                style={{ width: "30%" }}
-                                // getOptionSelected={(autoCities, value) => {return value.slug}}
-                                // value={searchQuery}
-                                loading={destiLoading}
-                                open={open}
-                                inputValue={selectedDestination.name}
-                                // inputValue={destination ? destination.longName : ''}
-                                onOpen={() => {
-                                setOpen(true);
-                                }}
-                                onClose={() => {
-                                setOpen(false);
-                                setAutoCities([])
-                                }}
-                                onChange={(e, value) => {
-                        
-                                    setOpen(false)
-                                    console.log(value.slug)
-                                    setSearchedCity(value.slug)
-                                    // getCity(value.slug)
-                                    setItinerary(prevState => ({
-                                        ...prevState,
-                                        destination: value.slug
-                                    }))
-                                }}
-                                
-                                onInputChange={(event, newInputValue) => {
-                                    setSelectedDestination({...selectedDestination, name: newInputValue})
-                                    console.log(newInputValue)
-                                    setSearchQuery(newInputValue);
-                                    }}
-                                renderInput={(params) => (
-                                <TextField 
-                                    {...params} 
-                                    label="Destination" 
+            <Box mt={2}>
+                <Container maxWidth="xl" mt={2} classes={{root: classes.panels}}>
+                    <Helmet>
+                        <title>Itinerary</title>
+                    </Helmet>
+                    <Paper  className={classes.paper} >
+                        <Box flexGrow={1}>
+                            <FormGroup aria-label="published" row>
+                                <TextField
                                     
-                                    InputProps={{
-                                        ...params.InputProps,
-                                        endAdornment: (
-                                        <React.Fragment>
-                                            {destiLoading ? <CircularProgress color="inherit" size={20} /> : null}
-                                            {params.InputProps.endAdornment}
-                                        </React.Fragment>
-                                        ),
-                                    }}
-                                    />
-                                )}
-                            />
-                            <TextField
-                                id="trip_duration"
-                                className={classes.input}
-                                label="Duration"
-                                defaultValue="1"
-                                type="number"
-                                value={itinerary ? itinerary.trip_duration : '1'}
-                                // variant="outlined"
-                                onChange={(e) => setItinerary(prevState => ({
-                                    ...prevState,
-                                    trip_duration: Number(e.target.value)
-                                }))}
-                                InputProps={{
-                                    endAdornment: <InputAdornment position="end">Days</InputAdornment>,
-                                    inputProps: { min: 1, max: 30 }
-                                }}
-                                
-                            />
-                            
-                            <FormControlLabel
-                                control={<Switch
-                                    size="small"
-                                    color="primary"
-                                    checked={itinerary ? itinerary.published : true}
-                                    value={itinerary ? itinerary.published : 0}
+                                    id="itineraryName"
+                                    className={classes.input}
+                                    label="Name"
+                                    defaultValue="Name"
+                                    value={itinerary ? itinerary.name : 'Name'}
+                                    // variant="outlined"
                                     onChange={(e) => setItinerary(prevState => ({
                                         ...prevState,
-                                        published: e.target.checked
+                                        name: e.target.value
                                     }))}
-                                    name="published"
-                                    inputProps={{ 'aria-label': 'published' }}
-                                />}
-                                label="Published"
-                                labelPlacement="top"
-                            />
-                        </FormGroup>
-                    </Box>
-                    
-                    <Box justifyContent="flex-end">
-                        <FormGroup aria-label="save" row>
-                            <div className={classes.wrapper}>
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    className={buttonClassname}
-                                    disabled={loading}
-                                    onClick={handleSaveButtonClick}
-                                    startIcon={<SaveIcon />}
-                                    style={{marginRight: 12}}
-                                    >
-                                    Save
-                                </Button>
-                                {loading && <CircularProgress size={24} className={classes.buttonProgress} />}
-                            </div>
-                            <div className={classes.wrapper}>
-                                <Button
-                                    variant="contained"
-                                    color="Secondary"
-                                    onClick={handleDeleteButtonClick}
-                                    startIcon={<DeleteIcon />}
-                                    >
-                                    Delete
-                                </Button>
-                            </div>
-                        </FormGroup>
-                    </Box>                    
-                </Paper>
-                        
-                <Box width={1 / 4} position="absolute" >
-                    <Paper style={{height: '80vh'}}>
-                            
-                        <Box display="block" p={1} m={1} >
-                            <Typography variant="overline">
-                                Attractions
-                            </Typography>
-                        </Box>
-
-                        <Box style={{maxHeight: '70vh', overflow: 'auto'}}  display="block" p={1} m={1} textAlign='center'>
-                            <div id="external-events">
-                            
-                                {attractions
-                                    ? attractions.map((item) => {
-                                        return (
-                                            <Card className={`${classes.card} fc-event`} title={item.name} image={item.photoUrl}>
-                                        
-                                                <CardMedia
-                                                    className={classes.media}
-                                                    image={item.photoUrl}
-                                                    
-                                                />
-                                                <CardContent>
-                                                    {item.name}
-                                                                
-                                                    <Rating name="rating" readOnly="true" value={Math.round(item.rating * 2)/2} precision={0.5} />
-                                                </CardContent>
-                                    
-                                            </Card>
-                                        )
                                 
-                                    })
+                                />
+
+                                <Autocomplete
+                                    id="grouped-demo"
+                                    options={autoCities}
+                                    groupBy={(autoCities) => autoCities.destination_type}
+                                    getOptionLabel={(autoCities) => autoCities.name}
+                                    style={{ width: "30%" }}
+                                    // getOptionSelected={(autoCities, value) => {return value.slug}}
+                                    // value={searchQuery}
+                                    loading={destiLoading}
+                                    open={open}
+                                    inputValue={selectedDestination.name}
+                                    // inputValue={destination ? destination.longName : ''}
+                                    onOpen={() => {
+                                    setOpen(true);
+                                    }}
+                                    onClose={() => {
+                                    setOpen(false);
+                                    setAutoCities([])
+                                    }}
+                                    onChange={(e, value) => {
+                            
+                                        setOpen(false)
+                                        console.log(value.slug)
+                                        setSearchedCity(value.slug)
+                                        // getCity(value.slug)
+                                        setItinerary(prevState => ({
+                                            ...prevState,
+                                            destination: value.slug
+                                        }))
+                                    }}
+                                    
+                                    onInputChange={(event, newInputValue) => {
+                                        setSelectedDestination({...selectedDestination, name: newInputValue})
+                                        console.log(newInputValue)
+                                        setSearchQuery(newInputValue);
+                                        }}
+                                    renderInput={(params) => (
+                                    <TextField 
+                                        {...params} 
+                                        label="Destination" 
+                                        
+                                        InputProps={{
+                                            ...params.InputProps,
+                                            endAdornment: (
+                                            <React.Fragment>
+                                                {destiLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                                                {params.InputProps.endAdornment}
+                                            </React.Fragment>
+                                            ),
+                                        }}
+                                        />
+                                    )}
+                                />
+                                <TextField
+                                    id="trip_duration"
+                                    className={classes.input}
+                                    label="Duration"
+                                    defaultValue="1"
+                                    type="number"
+                                    value={itinerary ? itinerary.trip_duration : '1'}
+                                    // variant="outlined"
+                                    onChange={(e) => setItinerary(prevState => ({
+                                        ...prevState,
+                                        trip_duration: Number(e.target.value)
+                                    }))}
+                                    InputProps={{
+                                        endAdornment: <InputAdornment position="end">Days</InputAdornment>,
+                                        inputProps: { min: 1, max: 30 }
+                                    }}
+                                    
+                                />
+                                
+                                <FormControlLabel
+                                    control={<Switch
+                                        size="small"
+                                        color="primary"
+                                        checked={itinerary ? itinerary.published : true}
+                                        value={itinerary ? itinerary.published : 0}
+                                        onChange={(e) => setItinerary(prevState => ({
+                                            ...prevState,
+                                            published: e.target.checked
+                                        }))}
+                                        name="published"
+                                        inputProps={{ 'aria-label': 'published' }}
+                                    />}
+                                    label="Published"
+                                    labelPlacement="top"
+                                />
+                            </FormGroup>
+                        </Box>
+                        
+                        <Box justifyContent="flex-end">
+                            <FormGroup aria-label="save" row>
+                                <div className={classes.wrapper}>
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        className={buttonClassname}
+                                        disabled={loading}
+                                        onClick={handleSaveButtonClick}
+                                        startIcon={<SaveIcon />}
+                                        style={{marginRight: 12}}
+                                        >
+                                        Save
+                                    </Button>
+                                    {loading && <CircularProgress size={24} className={classes.buttonProgress} />}
+                                </div>
+                                <div className={classes.wrapper}>
+                                    <Button
+                                        variant="contained"
+                                        color="Secondary"
+                                        onClick={handleDeleteButtonClick}
+                                        startIcon={<DeleteIcon />}
+                                        >
+                                        Delete
+                                    </Button>
+                                </div>
+                            </FormGroup>
+                        </Box>                    
+                    </Paper>
+                            
+                    <Box width={1 / 4} position="absolute" >
+                        <Paper style={{height: '80vh'}}>
+                                
+                            <Box display="block" p={1} m={1} >
+                                <Typography variant="overline">
+                                    Attractions
+                                </Typography>
+                            </Box>
+
+                            <Box style={{maxHeight: '70vh', overflow: 'auto'}}  display="block" p={1} m={1} textAlign='center'>
+                                <div id="external-events">
+                                
+                                    {attractions
+                                        ? attractions.map((item) => {
+                                            return (
+                                                <Card className={`${classes.card} fc-event`} title={item.name} image={item.photoUrl}>
+                                            
+                                                    <CardMedia
+                                                        className={classes.media}
+                                                        image={item.photoUrl}
+                                                        
+                                                    />
+                                                    <CardContent>
+                                                        {item.name}
+                                                                    
+                                                        <Rating name="rating" readOnly="true" value={Math.round(item.rating * 2)/2} precision={0.5} />
+                                                    </CardContent>
+                                        
+                                                </Card>
+                                            )
+                                    
+                                        })
+                                        : <CircularProgress/>
+                                    }
+                                </div>
+                            </Box>
+                            
+                        </Paper>
+                    </Box>
+                            
+
+                            
+                    <Box width={1 / 4} position="absolute" right={24}>
+                        <Paper style={{height: '80vh'}}>
+                            <Box display="block" p={1} m={1} >
+                                <Typography variant="overline">
+                                    Itinerary
+                                </Typography>
+                            </Box>
+                            <Tabs
+                            value={daySelection}
+                            onChange={handleChange}
+                            indicatorColor="primary"
+                            textColor="primary"
+                            variant="scrollable"
+                            scrollButtons="auto"
+                            aria-label="Day Selector Tab"
+                            
+                            >
+                                {itinerary
+                                        ? [...Array(itinerary.trip_duration)].map(
+                                            (element, index) => (
+                                                <Tab label={<React.Fragment>
+                                                    Day<br />
+                                                    {index + 1}
+                                                </React.Fragment>}{...a11yProps(index)} classes={{root: classes.tab}}/>
+                                            )
+                                        )
                                     : <CircularProgress/>
                                 }
-                            </div>
-                        </Box>
-                        
-                    </Paper>
-                </Box>
-                        
-
-                        
-                <Box width={1 / 4} position="absolute" right={24}>
-                    <Paper style={{height: '80vh'}}>
-                        <Box display="block" p={1} m={1} >
-                            <Typography variant="overline">
-                                Itinerary
-                            </Typography>
-                        </Box>
-                        <Tabs
-                        value={daySelection}
-                        onChange={handleChange}
-                        indicatorColor="primary"
-                        textColor="primary"
-                        variant="scrollable"
-                        scrollButtons="auto"
-                        aria-label="Day Selector Tab"
-                        
-                        >
-                            {itinerary
-                                    ? [...Array(itinerary.trip_duration)].map(
-                                        (element, index) => (
-                                            <Tab label={<React.Fragment>
-                                                Day<br />
-                                                {index + 1}
-                                            </React.Fragment>}{...a11yProps(index)} classes={{root: classes.tab}}/>
-                                        )
-                                    )
-                                : <CircularProgress/>
-                            }
-                                    
-                        </Tabs>
-                        <Box>
-                            {itinerary ? 
+                                        
+                            </Tabs>
+                            <Box>
+                                {itinerary ? 
+                                
+                                    <FullCalendar
+                                        rerenderDelay={10}
+                                        ref={calendarRef}
+                                        plugins={[ timeGridPlugin, interactionPlugin ]}
+                                        initialView="timeGridDay"
+                                        editable={ true }
+                                        droppable={true}
+                                        dragRevertDuration={0}
+                                        headerToolbar={ false }
+                                        height={ "60vh" }
+                                        allDaySlot={ false }
+                                        scrollTime={ '07:00:00'}
+                                        dayHeaderContent= {"Day "+ (daySelection + 1)} 
+                                        initialDate={"2050-01-01"}
+                                        eventClick={eventClick}
+                                        // eventChange={eventChange}
+                                        // drop={eventChange}
+                                        eventsSet={eventChange}
+                                        initialEvents={itinerary.itinerary}
+                                        forceEventDuration={ true }
+                                        eventContent={ renderEventContent}
+                                        eventBackgroundColor={'#ce93d8'}
+                                        eventBorderColor={'#fff'}
+                                        slotEventOverlap={false}
+                                        
+                                    /> 
+                                : <CircularProgress/>}   
+                            </Box>
                             
-                                <FullCalendar
-                                    rerenderDelay={10}
-                                    ref={calendarRef}
-                                    plugins={[ timeGridPlugin, interactionPlugin ]}
-                                    initialView="timeGridDay"
-                                    editable={ true }
-                                    droppable={true}
-                                    dragRevertDuration={0}
-                                    headerToolbar={ false }
-                                    height={ "60vh" }
-                                    allDaySlot={ false }
-                                    scrollTime={ '07:00:00'}
-                                    dayHeaderContent= {"Day "+ (daySelection + 1)} 
-                                    initialDate={"2050-01-01"}
-                                    eventClick={eventClick}
-                                    // eventChange={eventChange}
-                                    // drop={eventChange}
-                                    eventsSet={eventChange}
-                                    initialEvents={itinerary.itinerary}
-                                    forceEventDuration={ true }
-                                    eventContent={ renderEventContent}
-                                    eventBackgroundColor={'#ce93d8'}
-                                    eventBorderColor={'#fff'}
-                                    slotEventOverlap={false}
-                                    
-                                /> 
-                            : <CircularProgress/>}   
-                        </Box>
-                        
-                    </Paper>
-                            
-                </Box>
+                        </Paper>
+                                
+                    </Box>
+                
+                </Container>
+            </Box>
             
-            </Container>
+            
          
            
         </div>
