@@ -7,8 +7,6 @@ import { Divider, Grid, Paper, Avatar, Box } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import { useParams } from "react-router-dom";
-import { LeakAddTwoTone } from "@material-ui/icons";
-import { useImperativeHandle } from "react";
 
 const imgLink =
   "https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?auto=compress&cs=tinysrgb&dpr=3&h=750&w=1260";
