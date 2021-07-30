@@ -18,7 +18,7 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import Grid from '@material-ui/core/Grid';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
+import { withStyles, makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import TextField from "@material-ui/core/TextField";
 import InputLabel from "@material-ui/core/InputLabel";
@@ -38,8 +38,28 @@ import Avatar from '@material-ui/core/Avatar';
 import IconButton from '@material-ui/core/IconButton';
 import jwt_decode from "jwt-decode";
 import Cookies from "js-cookie";
+import Rating from '@material-ui/lab/Rating';
+import MonetizationOnIcon from '@material-ui/icons/MonetizationOn';
+import AttachMoneyIcon from '@material-ui/icons/AttachMoney';
+import SecurityIcon from '@material-ui/icons/Security';
 
+const StyledRating = withStyles({
+    iconFilled: {
+      color: '#649568',
+    },
+    iconHover: {
+      color: '#649568',
+    },
+  })(Rating);
 
+  const StyledRatingSafety = withStyles({
+    iconFilled: {
+      color: '#2979ff',
+    },
+    iconHover: {
+      color: '#2979ff',
+    },
+  })(Rating);
 
 const useStyles = makeStyles((theme) => ({
   icon: {
@@ -246,10 +266,31 @@ export default function TripPlanner(props) {
                                     <Typography gutterBottom variant="h5" component="h2">
                                     {searchedCity.longName}
                                     </Typography>
-                                    <Typography variant="body2" color="textSecondary" component="p">
-                                    Lizards are a widespread group of squamate reptiles, with over 6,000 species, ranging
-                                    across all continents except Antarctica
-                                    </Typography>
+                                    <Box component="fieldset" mb={3} borderColor="transparent">
+                                        <Typography component="legend">Rating:</Typography>
+                                        <Rating name="read-only" precision={0.5} value={Math.round(searchedCity.rating * 2)/2}readOnly />
+                                   
+                                        <Typography component="legend">Budget: </Typography>
+                                        
+                                        <StyledRating
+                                            name="Budget"
+                                            value={Math.round(searchedCity.budget.value )} max={10}
+                                            precision={0.5}
+                                            icon={<AttachMoneyIcon  fontSize="inherit" />}
+                                            readOnly
+                                        /> {searchedCity.budget.text}
+                                    
+                                   
+                                        <Typography component="legend">Safety: </Typography>
+                                        
+                                        <StyledRatingSafety
+                                            name="Safety"
+                                            value={Math.round(searchedCity.safety.value )} max={5}
+                                            precision={0.5}
+                                            icon={<SecurityIcon  fontSize="inherit" />}
+                                            readOnly
+                                        /> {searchedCity.safety.text}
+                                    </Box>
                                 </CardContent>
                             </CardActionArea>
                             <CardActions style={{display:"flex", justifyContent:"center", height:50}}>
