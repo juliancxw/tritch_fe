@@ -55,33 +55,31 @@ const useStyles = makeStyles((theme) => ({
 
 function Follow(props) {
   const classes = useStyles();
-  const [followers, setFollowers] = useState({followers: [], following: []});
-  
+  const [followers, setFollowers] = useState({ followers: [], following: [] });
+
   const [isLoading, setIsLoading] = useState(false);
   const [userData, setUserData] = useState("");
   const [isFollowed, setIsFollowed] = useState(false);
   const [userProfileData, setUserProfileData] = useState({});
 
   //The user ID of  profile
- const {userid} = useParams()
-  
- 
+  const { userid } = useParams();
+
   const headers = {
     auth_token: Cookies.get("auth_token"),
   };
   const verifiedUserID = DecodeToken(Cookies.get("auth_token"));
 
-  let profileID = userid
+  let profileID = userid;
   if (!userid) {
-    profileID = verifiedUserID
+    profileID = verifiedUserID;
   }
 
-
   useEffect(() => {
-      getUserData();
+    getUserData();
     getFollowers();
     getProfileData();
-  },[]);
+  }, []);
 
   //get data  logedIn User
   const getUserData = async () => {
@@ -95,48 +93,46 @@ function Follow(props) {
       )
       .then((response) => {
         setUserData(response.data);
-       
       })
       .catch((err) => {
-        
         toast(err);
       });
   };
   //get followers of  Profile
 
   const getFollowers = async () => {
-    let followingData 
-    let followedByUser
+    let followingData;
+    let followedByUser;
     try {
-       followingData = await axios
-      .get(`http://localhost:8000/api/v1/following/${profileID}`, {
-        headers: headers,
-      })
+      followingData = await axios.get(
+        `https://tritch-be.herokuapp.com/api/v1/following/${profileID}`,
+        {
+          headers: headers,
+        }
+      );
+    } catch (err) {
+      console.log(err);
     }
-    catch(err) {
-      console.log(err)
-    }
-      
-    console.log(followingData.data)
+
+    console.log(followingData.data);
     setFollowers(followingData.data);
-    
+
     try {
-      followedByUser = await followingData.data.followers.find(x => x.user._id == verifiedUserID )
+      followedByUser = await followingData.data.followers.find(
+        (x) => x.user._id == verifiedUserID
+      );
+    } catch (err) {
+      console.log(err);
     }
-    catch(err) {
-      console.log(err)
+    if (followedByUser) {
+      setIsFollowed(true);
+    } else {
+      setIsFollowed(false);
     }
-    if (followedByUser){
-      setIsFollowed(true)
-    } else{
-      setIsFollowed(false)
-    }
-    console.log(followingData.data)
+    console.log(followingData.data);
     setFollowers(followingData.data);
-    
-          
   };
-  
+
   //get the data the Profile
   const getProfileData = async () => {
     const headers = {
@@ -148,7 +144,6 @@ function Follow(props) {
       })
       .then((response) => {
         setUserProfileData(response.data);
-     
       })
       .catch((err) => {
         if (!err.response.data) {
@@ -159,98 +154,86 @@ function Follow(props) {
   };
 
   //Function for follow button
-  const handleFollow =  async () => {
+  const handleFollow = async () => {
     try {
-      await axios
-      .post(
+      await axios.post(
         `https://tritch-be.herokuapp.com/api/v1/following/${verifiedUserID}/follow`,
         { following: userid },
         { headers: headers }
-      )
+      );
+    } catch (err) {
+      console.log(err);
     }
-    catch(err){
-      console.log(err)
-    }
-        console.log("Followed");
-        // setIsFollowed(true);
-        getFollowers()
-      
+    console.log("Followed");
+    // setIsFollowed(true);
+    getFollowers();
   };
 
   //Function for UnFollow button
-  const handleUnfollow =  async () => {
+  const handleUnfollow = async () => {
     try {
-      axios
-      .post(
+      axios.post(
         `https://tritch-be.herokuapp.com/api/v1/following/${verifiedUserID}/unfollow`,
-        { following: userid},
+        { following: userid },
         { headers: headers }
-      )
-    }
-    catch(err) {
-     
-        console.log(err)
-     
+      );
+    } catch (err) {
+      console.log(err);
     }
     // setIsFollowed(false);
-    getFollowers()
-      
+    getFollowers();
   };
 
   if (isLoading) return <h2>Loading</h2>;
 
   return (
     <div className={classes.root} className="App">
-      
-        <Grid container wrap="nowrap" spacing={2}>
-          <Grid item>
-            <Avatar alt="Remy Sharp" src={imgLink} className={classes.large} />
-          </Grid>
-          <Grid justifyContent="left" item xs zeroMinWidth>
-            <div className={classes.header}>
-              <h2 className={classes.nameHeading}>
-                {userProfileData.firstName + " " + userProfileData.lastName}
-              </h2>
-              {userData._id === profileID ? (
-                <></>
-              ) : (
-                <div>
-                  {isFollowed === false ? (
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      className={classes.button}
-                      onClick={handleFollow}
-                    >
-                      Follow
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      className={classes.button}
-                      onClick={handleUnfollow}
-                    >
-                      Unfollow
-                    </Button>
-                  )}
-                </div>
-              )}
-            </div>
-            {followers
-            ?  <Box>
-            <p>Followers: {followers.followers.length}</p>
-                           <p>Following: {followers.following.length}</p>
-                        </Box>
-            :""
-            }
-           
-         
-            
-          </Grid>
+      <Grid container wrap="nowrap" spacing={2}>
+        <Grid item>
+          <Avatar alt="Remy Sharp" src={imgLink} className={classes.large} />
         </Grid>
-        <Divider variant="fullWidth" className={classes.divider} />
-      
+        <Grid justifyContent="left" item xs zeroMinWidth>
+          <div className={classes.header}>
+            <h2 className={classes.nameHeading}>
+              {userProfileData.firstName + " " + userProfileData.lastName}
+            </h2>
+            {userData._id === profileID ? (
+              <></>
+            ) : (
+              <div>
+                {isFollowed === false ? (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    className={classes.button}
+                    onClick={handleFollow}
+                  >
+                    Follow
+                  </Button>
+                ) : (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    className={classes.button}
+                    onClick={handleUnfollow}
+                  >
+                    Unfollow
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
+          {followers ? (
+            <Box>
+              <p>Followers: {followers.followers.length}</p>
+              <p>Following: {followers.following.length}</p>
+            </Box>
+          ) : (
+            ""
+          )}
+        </Grid>
+      </Grid>
+      <Divider variant="fullWidth" className={classes.divider} />
     </div>
   );
 }
