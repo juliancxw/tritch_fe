@@ -56,12 +56,13 @@ function App() {
 
       try {
         loggedInUserDetails = await axios.get(
-          `tritch-be.herokuapp.com/api/v1/users/${loggedInUserId}`,
+          `https://tritch-be.herokuapp.com/api/v1/users/${loggedInUserId}`,
           {
             headers: headers,
           }
         );
       } catch (err) {
+        toast(err.response.data);
         console.log(err);
       }
     }
