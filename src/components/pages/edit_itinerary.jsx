@@ -84,7 +84,7 @@ function Itinerary(props) {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
 
-        const [autoCities, setAutoCities] = useState([])
+    const [autoCities, setAutoCities] = useState([])
 
     const [selectedDestination, setSelectedDestination] = useState({slug: "hello", name: "hello", destinationType:"hello"})
 
@@ -95,6 +95,9 @@ function Itinerary(props) {
 
     const [citiesData, setCitiesData] = useState([])
     const [searchedCity, setSearchedCity] = useState()
+
+    // Google Maps
+    const [center, setCenter] = useState()
 
 
   
@@ -254,6 +257,10 @@ function Itinerary(props) {
             name: destinationData.data.data.longName,
             destinationType: destinationData.data.data.destinationType
         }))
+        setCenter({
+            lat: Number(destinationData.data.data.lat),
+            lng: Number(destinationData.data.data.long)
+          })
     }
     
     // Function to update itinerary by id
@@ -559,17 +566,11 @@ function Itinerary(props) {
         
         <div className={classes.root}>
             {destination
-            ?<Maps
+            ? <Maps center = {center}/>
+        : <CircularProgress/>
+        }
             
-            lat = {destination.lat}
-            lng = {destination.long}
-         />
-            :<Maps
-            
-            lat = {1.28967}
-            lng = {103.85007}
-         />
-            }
+           
             
             
             <Container maxWidth="xl" mt={2} classes={{root: classes.panels}}>

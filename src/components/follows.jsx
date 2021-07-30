@@ -109,16 +109,21 @@ function Follow(props) {
     let followedByUser
     try {
        followingData = await axios
-      .get(`http://localhost:8000/api/v1/following/${profileID}`, {
+      .get(`https://tritch-be.herokuapp.com/api/v1/following/${profileID}`, {
         headers: headers,
       })
     }
     catch(err) {
       console.log(err)
     }
-      
-    console.log(followingData.data)
-    setFollowers(followingData.data);
+      if(followingData){
+        console.log(followingData.data)
+        setFollowers(followingData.data);
+      }
+      else{
+        return
+      }
+
     
     try {
       followedByUser = await followingData.data.followers.find(x => x.user._id == verifiedUserID )
