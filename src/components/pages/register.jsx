@@ -40,6 +40,7 @@ function SignUp(props) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+  const [image, setImage] = useState(null);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -51,6 +52,7 @@ function SignUp(props) {
         firstName: firstName,
         lastName: lastName,
         email: email,
+        image: image,
         password: password,
         confirmPassword: confirmPassword,
       })
@@ -61,6 +63,8 @@ function SignUp(props) {
         toast(err.response.data);
       });
   }
+
+  console.log(image);
 
   return (
     <Container component="main" maxWidth="xs">
@@ -138,6 +142,26 @@ function SignUp(props) {
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
             </Grid>
+            <Grid item xs={12}>
+              <TextField
+                type="file"
+                className="form-control-file"
+                id="product-image"
+                onChange={(e) => setImage(e.target.files[0].name)}
+              />
+            </Grid>
+            {/* <Grid item xs={4}>
+              <Button
+                style={{ marginTop: "5px" }}
+                variant="contained"
+                component="label"
+                value={image}
+                onChange={(e) => setImage(e.target.files[0])}
+              >
+                Upload File
+                <input type="file" hidden />
+              </Button>
+            </Grid> */}
           </Grid>
           <Button
             type="submit"

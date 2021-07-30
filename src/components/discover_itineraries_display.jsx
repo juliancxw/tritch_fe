@@ -84,8 +84,6 @@ function DiscoverItinerariesDisplay(props) {
       });
   }, []);
 
-  // console.log(userBucketlist);
-
   useEffect(() => {
     // call backend to get all itineraries
     axios
@@ -207,7 +205,7 @@ function DiscoverItinerariesDisplay(props) {
                 <Card className={classes.card}>
                   <CardMedia
                     className={classes.cardMedia}
-                    image={""}
+                    image={item.image}
                     title="Image title"
                   />
                   <CardContent className={classes.cardContent}>
