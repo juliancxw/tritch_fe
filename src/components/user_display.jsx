@@ -68,23 +68,33 @@ function UserDisplayCard() {
         </CardContent>
         <CardActions>
           {userid ? (
-            <Button component={Link} to={`/users/bucketlist/${userid}`}>
-              {" "}
-              Bucketlist
-            </Button>
+            <div className="otherUser">
+              <Button component={Link} to={`/users/bucketlist/${userid}`}>
+                {" "}
+                Bucketlist
+              </Button>
+              <Button
+                aria-label="bucketlist"
+                component={Link}
+                to="/users/itineraries"
+              >
+                Itineraries
+              </Button>
+            </div>
           ) : (
-            <Button component={Link} to={`/users/bucketlist/`}>
-              My Bucketlist
-            </Button>
+            <div className="loggedInUser">
+              <Button component={Link} to={`/users/bucketlist/`}>
+                My Bucketlist
+              </Button>
+              <Button
+                aria-label="bucketlist"
+                component={Link}
+                to="/users/itineraries"
+              >
+                My Itineraries
+              </Button>
+            </div>
           )}
-
-          <Button
-            aria-label="bucketlist"
-            component={Link}
-            to="/users/itineraries"
-          >
-            My Itineraries
-          </Button>
         </CardActions>
       </Card>
     </Box>
