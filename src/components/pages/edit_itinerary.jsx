@@ -13,7 +13,6 @@ import FullCalendar, { parseClassNames } from "@fullcalendar/react"
 import timeGridPlugin from "@fullcalendar/timegrid"
 import listPlugin from '@fullcalendar/list'
 import interactionPlugin, { Draggable } from '@fullcalendar/interaction'
-import GoogleMapReact from 'google-map-react'
 import { alpha, makeStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
 import AppBar from '@material-ui/core/AppBar'
@@ -48,6 +47,7 @@ import Avatar from '@material-ui/core/Avatar';
 import IconButton from '@material-ui/core/IconButton';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import moment from 'moment'
+import Maps from "../maps";
 
 
 
@@ -84,22 +84,7 @@ function Itinerary(props) {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
 
-    //Google Maps
-    const [maps, setMaps] = useState(
-        {
-            center: {
-                lat: 59.95,
-                lng: 30.33
-              },
-              zoom: 11 
-        }
-    )
-    const [center, setCenter] = useState({
-        lat: 59.95,
-        lng: 30.33
-      })
-
-    const [autoCities, setAutoCities] = useState([])
+        const [autoCities, setAutoCities] = useState([])
 
     const [selectedDestination, setSelectedDestination] = useState({slug: "hello", name: "hello", destinationType:"hello"})
 
@@ -243,37 +228,31 @@ function Itinerary(props) {
     // Function to get attractions data
     const getAttractions = async (location) => {
         let attractionsData
-        let destination
+        let destinationData
           // get LatLong
           try {
-            destination = await citiesAPI.search(location)
+            destinationData = await citiesAPI.search(location)
         }
         catch (error) {
             console.log(error)
         }
         
-        let latLong = destination.data.data.latlong
+        let latLong = destinationData.data.data.latlong
         console.log(latLong)
         try {
-            attractionsData = await attractionsAPI.search(destination.data.data.name, latLong)
+            attractionsData = await attractionsAPI.search(destinationData.data.data.name, latLong)
             
         }
         catch (error) {
             console.log(error)
         }
         console.log(attractionsData)
-        setCenter({
-            
-                lat: destination.data.data.lat,
-                lng:destination.data.data.long
-           
-        })
         setAttractions(attractionsData.data)
-        setDestination(destination.data.data)
+        setDestination(destinationData.data.data)
         setSelectedDestination(Object.assign({},{
-            slug: destination.data.data.slug,
-            name: destination.data.data.longName,
-            destinationType: destination.data.data.destinationType
+            slug: destinationData.data.data.slug,
+            name: destinationData.data.data.longName,
+            destinationType: destinationData.data.data.destinationType
         }))
     }
     
@@ -579,24 +558,19 @@ function Itinerary(props) {
     return(
         
         <div className={classes.root}>
-        
-            <div className={classes.map} style={{ height: '100vh', width: '100%' }}>
-                <GoogleMapReact
-                bootstrapURLKeys={{ key: "AIzaSyA0J11Yrneq4iE90Gh29MEsTyDEs7C9zEE" }}
-                center={center}
-                zoom={maps.zoom}
-                yesIWantToUseGoogleMapApiInternals
- 
-                options={createMapOptions}>
-                
-                
-                    <AnyReactComponent
-                        lat={59.955413}
-                        lng={30.337844}
-                        text="My Marker"
-                    />
-                </GoogleMapReact>
-            </div>
+            {destination
+            ?<Maps
+            
+            lat = {destination.lat}
+            lng = {destination.long}
+         />
+            :<Maps
+            
+            lat = {1.28967}
+            lng = {103.85007}
+         />
+            }
+            
             
             <Container maxWidth="xl" mt={2} classes={{root: classes.panels}}>
                 <Helmet>
