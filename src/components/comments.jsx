@@ -42,14 +42,7 @@ function Comments(props) {
     const [isLoading, setIsLoading] = useState(false);
     const [userData, setUserData] = useState('');
  
-    //Function to handle the Edit comment - When user presses the Edit button
-    const handleEdit = (comment, index) => {
-        // setIsEdit((v) => {
-        //     v[index] = !v[index]
-        //     return v;
-        // });
-        setEditableComment(comment.comments)
-    };
+
 
     //It is must to pass the iternrary ID in the route so that this component can be used
     const itineraryID = useParams().id;
