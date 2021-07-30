@@ -66,7 +66,7 @@ function Comments(props){
             const verifiedUserID = DecodeToken(Cookies.get("auth_token"));
             await axios
             .get(
-              `http://localhost:8000/api/v1/users/show/${verifiedUserID}`,
+              `https://tritch-be.herokuapp.com/api/v1/show/${verifiedUserID}`,
               { headers: headers }
             )
             .then((response) => {
@@ -82,7 +82,7 @@ function Comments(props){
         //Fetching the comments of the particular itenarary
         const getComments = async () => {
         await axios
-        .get(`http://localhost:8000/api/v1/comments/itnerary/${itineraryID}`,  { headers: headers })
+        .get(`https://tritch-be.herokuapp.com/api/v1/comments/itnerary/${itineraryID}`,  { headers: headers })
         .then((res) => {
             console.log(res.data)
             let temp = [];
@@ -135,7 +135,7 @@ function Comments(props){
         setComments(tempComment)
 
         await axios
-        .put(`http://localhost:8000/api/v1/comments/${commentparam._id}`, {comments: EditableComment}, { headers: headers })
+        .put(`https://tritch-be.herokuapp.com/api/v1/comments/${commentparam._id}`, {comments: EditableComment}, { headers: headers })
         .then(() => console.log("Comment Updated"))
         .catch((err) => {
             if (!err.response.data) {
@@ -153,7 +153,7 @@ function Comments(props){
         setComments(tempComments)
 
         await axios
-        .delete(`http://localhost:8000/api/v1/comments/${comment._id}`, { headers: headers })
+        .delete(`https://tritch-be.herokuapp.com/api/v1/comments/${comment._id}`, { headers: headers })
         .then(() => console.log("comment Deleted"))
         .catch((err) => {
             if (!err.response.data) {
@@ -173,7 +173,7 @@ function Comments(props){
         setPostComment('');
 
         await axios
-        .post(`http://localhost:8000/api/v1/comments/${userData._id}/itinerary/${itineraryID}/new`, {comments: postComment}, { headers: headers })
+        .post(`https://tritch-be.herokuapp.com/api/v1/comments/${userData._id}/itinerary/${itineraryID}/new`, {comments: postComment}, { headers: headers })
         .then(() => console.log("Comment Created"))
         .catch((err) => {
             if (!err.response.data) {
