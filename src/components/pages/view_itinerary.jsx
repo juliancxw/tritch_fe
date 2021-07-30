@@ -99,6 +99,16 @@ function ViewItinerary(props) {
     const [citiesData, setCitiesData] = useState([])
     const [searchedCity, setSearchedCity] = useState()
 
+    // Google Maps
+    const [center, setCenter] = useState({
+        lat: 22.28552,
+        lng: 114.15769
+        })
+    const [destinationLoaded, setDestinationLoaded]  = useState(false)
+
+
+
+
 
   
     // <<<<< Effects >>>>>
@@ -178,9 +188,21 @@ function ViewItinerary(props) {
         };
       }, []);
 
-    //   useEffect(() => {
-    //     console.log(`i am ${searchedCity}`)
-    //   }, [searchedCity]);
+ 
+
+    // Set map center acoording to destination data
+    useEffect(() => {
+
+        if(destinationLoaded){
+            setCenter({
+                lat: Number(destination.lat),
+                lng: Number(destination.long)
+                })
+        }
+    
+    },[destinationLoaded])
+
+
     
     // <<<<< Functions >>>>>
 
@@ -207,19 +229,19 @@ function ViewItinerary(props) {
     // Function to get attractions data
     const getAttractions = async (location) => {
         let attractionsData
-        let destination
+        let destinationData
           // get LatLong
           try {
-            destination = await citiesAPI.search(location)
+            destinationData = await citiesAPI.search(location)
         }
         catch (error) {
             console.log(error)
         }
         
-        let latLong = destination.data.data.latlong
+        let latLong = destinationData.data.data.latlong
         console.log(latLong)
         try {
-            attractionsData = await attractionsAPI.search(destination.data.data.name, latLong)
+            attractionsData = await attractionsAPI.search(destinationData.data.data.name, latLong)
             
         }
         catch (error) {
@@ -227,13 +249,15 @@ function ViewItinerary(props) {
         }
         console.log(attractionsData)
       
-        setAttractions(attractionsData.data)
-        setDestination(destination.data.data)
-        setSelectedDestination(Object.assign({},{
-            slug: destination.data.data.slug,
-            name: destination.data.data.longName,
-            destinationType: destination.data.data.destinationType
+        
+        await setAttractions(attractionsData.data)
+        await setDestination(destinationData.data.data)
+        await setSelectedDestination(Object.assign({},{
+            slug: destinationData.data.data.slug,
+            name: destinationData.data.data.longName,
+            destinationType: destinationData.data.data.destinationType
         }))
+        setDestinationLoaded(true)
     }
     
     // Function to update itinerary by id
@@ -511,184 +535,196 @@ function ViewItinerary(props) {
     return(
         
         <div className={classes.root}>
-            <Maps/>
-            
-            <Container maxWidth="xl" mt={2} classes={{root: classes.panels}}>
-                <Helmet>
-                    <title>Itinerary</title>
-                </Helmet>
-                <Paper  className={classes.paper} >
-                    <Box flexGrow={1}>
-                        <FormGroup aria-label="published" row>
-                            <TextField
-                                
-                                id="itineraryName"
-                                className={classes.input}
-                                disabled={true}
-                                label="Name"
-                                defaultValue="Name"
-                                value={itinerary ? itinerary.name : 'Name'}
-                                // variant="outlined"
-                                onChange={(e) => setItinerary(prevState => ({
-                                    ...prevState,
-                                    name: e.target.value
-                                }))}
-                            
-                            />
-   
-                             <Autocomplete
-                                id="grouped-demo"
-                                options={autoCities}
-                                groupBy={(autoCities) => autoCities.destination_type}
-                                getOptionLabel={(autoCities) => autoCities.name}
-                                style={{ width: "30%" }}
-                                disabled={true}
-                                // getOptionSelected={(autoCities, value) => {return value.slug}}
-                                // value={searchQuery}
-                                loading={destiLoading}
-                                open={open}
-                                inputValue={selectedDestination.name}
-                                // inputValue={destination ? destination.longName : ''}
-                                onOpen={() => {
-                                setOpen(true);
-                                }}
-                                onClose={() => {
-                                setOpen(false);
-                                setAutoCities([])
-                                }}
-                                onChange={(e, value) => {
-                        
-                                    setOpen(false)
-                                    console.log(value.slug)
-                                    setSearchedCity(value.slug)
-                                    // getCity(value.slug)
-                                    setItinerary(prevState => ({
-                                        ...prevState,
-                                        destination: value.slug
-                                    }))
-                                }}
-                                
-                                onInputChange={(event, newInputValue) => {
-                                    setSelectedDestination({...selectedDestination, name: newInputValue})
-                                    console.log(newInputValue)
-                                    setSearchQuery(newInputValue);
-                                    }}
-                                renderInput={(params) => (
-                                <TextField 
-                                    {...params} 
-                                    disabled={true}
-                                    label="Destination" 
-                                    disabled={true}
-                                    InputProps={{
-                                        ...params.InputProps,
-                                        endAdornment: (
-                                        <React.Fragment>
-                                            {destiLoading ? <CircularProgress color="inherit" size={20} /> : null}
-                                            {params.InputProps.endAdornment}
-                                        </React.Fragment>
-                                        ),
-                                    }}
-                                    />
-                                )}
-                            />
-                            <TextField
-                                id="trip_duration"
-                                disabled={true}
-                                className={classes.input}
-                                label="Duration"
-                                defaultValue="1"
-                                type="number"
-                                value={itinerary ? itinerary.trip_duration : '1'}
-                                // variant="outlined"
-                                onChange={(e) => setItinerary(prevState => ({
-                                    ...prevState,
-                                    trip_duration: Number(e.target.value)
-                                }))}
-                                InputProps={{
-                                    endAdornment: <InputAdornment position="end">Days</InputAdornment>,
-                                    inputProps: { min: 1, max: 30 }
-                                }}
-                                
-                            />
-                            
-                        </FormGroup>
-                    </Box>
-                    
-                    <Box justifyContent="flex-end">
-                        <FormGroup aria-label="save" row>
-                            <div className={classes.wrapper}>
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    className={buttonClassname}
-                                    disabled={loading}
-                                    onClick={handleSaveButtonClick}
-                                    startIcon={<SaveIcon />}
-                                    style={{marginRight: 12}}
-                                    >
-                                    Save
-                                </Button>
-                                {loading && <CircularProgress size={24} className={classes.buttonProgress} />}
-                            </div>
-                       
-                        </FormGroup>
-                    </Box>                    
-                </Paper>
-                        
-                <Box width={1 / 4} position="absolute" >
-                    
-                    <Paper style={{height: '80vh'}}>
-                        <Box display="block" p={1} m={1} >
-                            <Typography variant="overline">
-                                Itinerary
-                            </Typography>
-                        </Box>
-                       
-                       
-                            {itinerary ? 
-                            
-                                <FullCalendar
-                                    rerenderDelay={10}
-                                    ref={calendarRef}
-                                    plugins={[ listPlugin, interactionPlugin ]}
-                                    initialView={"listMonth"}
-                                    dragRevertDuration={0}
-                                    headerToolbar={ false }
-                                    height={ "60vh" }
-                                    // listDayFormat={{day:'numeric'}}
-                                    initialDate={"2050-01-01"}
-                                    dayHeaderContent= {(args) => {
-                                        return "Day " + moment(args.date).format('D')
-                                    }} 
-                                    
-                                    eventClick={eventClick}
-                                    // eventChange={eventChange}
-                                    // drop={eventChange}
-                                    
-                                    events={itinerary.itinerary}
-                                    
-                                    eventContent={ renderEventContent}
-                                    eventBackgroundColor={'#ce93d8'}
-                                    eventBorderColor={'#fff'}
-                                 
-                                    
-                                /> 
-                            : <CircularProgress/>}   
-                        
-                        
-                    
-                    </Paper>
-                </Box>
-                        
+            <Box mt={-3}>
+                {center
+                    ? <Maps center = {center} attractions = {attractions}/>
+                    : <CircularProgress/>
+                 }
+            </Box>
+            <Box  mt={2}>
+                ..   
+            </Box>
 
+            <Box mt={2}>
+                <Container maxWidth="xl" mt={2} classes={{root: classes.panels}}>
+                    <Helmet>
+                        <title>Itinerary</title>
+                    </Helmet>
+                    <Paper  className={classes.paper} >
+                        <Box flexGrow={1}>
+                            <FormGroup aria-label="published" row>
+                                <TextField
+                                    
+                                    id="itineraryName"
+                                    className={classes.input}
+                                    disabled={true}
+                                    label="Name"
+                                    defaultValue="Name"
+                                    value={itinerary ? itinerary.name : 'Name'}
+                                    // variant="outlined"
+                                    onChange={(e) => setItinerary(prevState => ({
+                                        ...prevState,
+                                        name: e.target.value
+                                    }))}
+                                
+                                />
+    
+                                <Autocomplete
+                                    id="grouped-demo"
+                                    options={autoCities}
+                                    groupBy={(autoCities) => autoCities.destination_type}
+                                    getOptionLabel={(autoCities) => autoCities.name}
+                                    style={{ width: "30%" }}
+                                    disabled={true}
+                                    // getOptionSelected={(autoCities, value) => {return value.slug}}
+                                    // value={searchQuery}
+                                    loading={destiLoading}
+                                    open={open}
+                                    inputValue={selectedDestination.name}
+                                    // inputValue={destination ? destination.longName : ''}
+                                    onOpen={() => {
+                                    setOpen(true);
+                                    }}
+                                    onClose={() => {
+                                    setOpen(false);
+                                    setAutoCities([])
+                                    }}
+                                    onChange={(e, value) => {
+                            
+                                        setOpen(false)
+                                        console.log(value.slug)
+                                        setSearchedCity(value.slug)
+                                        // getCity(value.slug)
+                                        setItinerary(prevState => ({
+                                            ...prevState,
+                                            destination: value.slug
+                                        }))
+                                    }}
+                                    
+                                    onInputChange={(event, newInputValue) => {
+                                        setSelectedDestination({...selectedDestination, name: newInputValue})
+                                        console.log(newInputValue)
+                                        setSearchQuery(newInputValue);
+                                        }}
+                                    renderInput={(params) => (
+                                    <TextField 
+                                        {...params} 
+                                        disabled={true}
+                                        label="Destination" 
+                                        disabled={true}
+                                        InputProps={{
+                                            ...params.InputProps,
+                                            endAdornment: (
+                                            <React.Fragment>
+                                                {destiLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                                                {params.InputProps.endAdornment}
+                                            </React.Fragment>
+                                            ),
+                                        }}
+                                        />
+                                    )}
+                                />
+                                <TextField
+                                    id="trip_duration"
+                                    disabled={true}
+                                    className={classes.input}
+                                    label="Duration"
+                                    defaultValue="1"
+                                    type="number"
+                                    value={itinerary ? itinerary.trip_duration : '1'}
+                                    // variant="outlined"
+                                    onChange={(e) => setItinerary(prevState => ({
+                                        ...prevState,
+                                        trip_duration: Number(e.target.value)
+                                    }))}
+                                    InputProps={{
+                                        endAdornment: <InputAdornment position="end">Days</InputAdornment>,
+                                        inputProps: { min: 1, max: 30 }
+                                    }}
+                                    
+                                />
+                                
+                            </FormGroup>
+                        </Box>
                         
-                <Box width={1 / 4} position="absolute" right={24}>
-                    <Paper style={{height: '80vh'}}>
-                        <Comments/>
-                    </Paper>    
-                </Box>
-            
-            </Container>
+                        <Box justifyContent="flex-end">
+                            <FormGroup aria-label="save" row>
+                                <div className={classes.wrapper}>
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        className={buttonClassname}
+                                        disabled={loading}
+                                        onClick={handleSaveButtonClick}
+                                        startIcon={<SaveIcon />}
+                                        style={{marginRight: 12}}
+                                        >
+                                        Save
+                                    </Button>
+                                    {loading && <CircularProgress size={24} className={classes.buttonProgress} />}
+                                </div>
+                        
+                            </FormGroup>
+                        </Box>                    
+                    </Paper>
+                            
+                    <Box width={1 / 4} position="absolute" >
+                        
+                        <Paper style={{height: '80vh'}}>
+                            <Box display="block" p={1} m={1} >
+                                <Typography variant="overline">
+                                    Itinerary
+                                </Typography>
+                            </Box>
+                        
+                        
+                                {itinerary ? 
+                                
+                                    <FullCalendar
+                                        rerenderDelay={10}
+                                        ref={calendarRef}
+                                        plugins={[ listPlugin, interactionPlugin ]}
+                                        initialView={"listMonth"}
+                                        dragRevertDuration={0}
+                                        headerToolbar={ false }
+                                        height={ "60vh" }
+                                        // listDayFormat={{day:'numeric'}}
+                                        initialDate={"2050-01-01"}
+                                        dayHeaderContent= {(args) => {
+                                            return "Day " + moment(args.date).format('D')
+                                        }} 
+                                        
+                                        eventClick={eventClick}
+                                        // eventChange={eventChange}
+                                        // drop={eventChange}
+                                        
+                                        events={itinerary.itinerary}
+                                        
+                                        eventContent={ renderEventContent}
+                                        eventBackgroundColor={'#ce93d8'}
+                                        eventBorderColor={'#fff'}
+                                    
+                                        
+                                    /> 
+                                : <CircularProgress/>}   
+                            
+                            
+                        
+                        </Paper>
+                    </Box>
+                            
+
+                            
+                    <Box width={1 / 4} position="absolute" right={24}>
+                        <Paper style={{height: '80vh'}}>
+                            <Comments/>
+                        </Paper>    
+                    </Box>
+                
+                </Container>
+
+            </Box>
+           
          
            
         </div>

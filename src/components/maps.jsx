@@ -1,20 +1,25 @@
 import React from 'react'
-import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import { isPropsValid } from '@fullcalendar/react';
 import { useEffect, useState, useCallback } from 'react';
+import { ListItemAvatar } from '@material-ui/core';
 
 const containerStyle = {
   width: '100%',
   height: '100%',
-  position: 'absolute'
+  position: 'absolute',
+
 };
 
-
+const options = {
+    disableDefaultUI: true
+  }
 
 function Maps(props) {
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: "AIzaSyA0J11Yrneq4iE90Gh29MEsTyDEs7C9zEE"
+    googleMapsApiKey: "AIzaSyA0J11Yrneq4iE90Gh29MEsTyDEs7C9zEE",
+    
   })
   
   console.log(props.lng)
@@ -24,6 +29,7 @@ function Maps(props) {
   const [map, setMap] = useState(null)
 
   const onLoad = useCallback(function callback(map) {
+      console.log(props.lat)
     const bounds = new window.google.maps.LatLngBounds();
     map.fitBounds(bounds);
     setMap(map)
@@ -33,6 +39,8 @@ function Maps(props) {
     setMap(null)
   }, [])
 
+
+
   return isLoaded ? (
       <GoogleMap
         mapContainerStyle={containerStyle}
@@ -40,8 +48,10 @@ function Maps(props) {
         zoom={10}
         onLoad={onLoad}
         onUnmount={onUnmount}
+        options={options}
+       
       >
-        { /* Child components, such as markers, info windows, etc. */ }
+        
         <></>
       </GoogleMap>
   ) : <></>
