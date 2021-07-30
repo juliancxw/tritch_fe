@@ -56,7 +56,7 @@ function App() {
 
       try {
         loggedInUserDetails = await axios.get(
-          `https://tritch-be.herokuapp.com/api/v1/users/${loggedInUserId}`,
+          `https://tritch-be.herokuapp.com/api/v1/users/show/${loggedInUserId}`,
           {
             headers: headers,
           }
