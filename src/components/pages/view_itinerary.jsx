@@ -128,28 +128,6 @@ function ViewItinerary(props) {
        
     },[])
 
-        // Lodash function to delay frequency of autosearch
-        const debouncedSearch = useCallback(
-            debounce(async (searchQuery) => {
-                
-            let results = await citiesAPI.autoSearch(searchQuery);
-            console.log(results.data)  
-            setAutoCities(results.data.data)
-                
-            }, 500),
-            [],
-        );
-    
-        // Run Autosearch when query input changes
-        useEffect(() => {
-            let active = true;
-            
-            // Search only after more than 2 characters typed
-            if (searchQuery.length > 2){
-                debouncedSearch(searchQuery)
-             
-            }   
-        },[searchQuery, debouncedSearch])
     
 
     // Retrieve attractions based on destination
@@ -163,32 +141,7 @@ function ViewItinerary(props) {
     
     
 
-    // Autosave changes to trip itinerary whenever state changes
-    // Lodash function to save object to database but set delay
-    const debouncedSave = useCallback(
-        debounce(async (itinerary) => {
-          await updateItinerary(itineraryId, itinerary.name, itinerary.destination, Number(itinerary.trip_duration), itinerary.itinerary, itinerary.published);
-        }, 1000),
-        [],
-      );
-      
-      // Runs only when Itinerary changes.
-      useEffect(() => {
-        if (itinerary) {
-          debouncedSave(itinerary);
-        }
-        // debouncedSave is wrapped in a useCallback with an empty dependency list,
-        // thus it will not change and in turn will not re-trigger this effect.
-      }, [itinerary, debouncedSave]);
-
-    // Autosave button timer
-      React.useEffect(() => {
-        return () => {
-          clearTimeout(timer.current);
-        };
-      }, []);
-
- 
+   
 
     // Set map center acoording to destination data
     useEffect(() => {
@@ -260,73 +213,8 @@ function ViewItinerary(props) {
         setDestinationLoaded(true)
     }
     
-    // Function to update itinerary by id
 
-    const updateItinerary = async (id, name, destination, trip_duration, itinerary, published) => {
-        setSuccess(false);
-        setLoading(true);
-        try {
-            await itineraryAPI.updateItinerary(id, name, destination, trip_duration, itinerary, published)
-        }
-        catch (error) {
-            console.log(error)
-        }
-        timer.current = window.setTimeout(() => {
-            setLoading(false);
-            setSuccess(true);
-  
-        }, 1000);
-          timer.current = window.setTimeout(() => {
-            setSuccess(false);
-  
-        }, 2000);
-    }
 
-    const deleteItinerary = async (id) => {
-        setSuccess(false);
-        setLoading(true);
-        try {
-            await itineraryAPI.deleteItinerary(id)
-        }
-        catch (error) {
-            console.log(error)
-        }
-        timer.current = window.setTimeout(() => {
-            setLoading(false);
-            setSuccess(true);
-  
-        }, 1000);
-          timer.current = window.setTimeout(() => {
-            setSuccess(false);
-  
-        }, 2000);
-    }
-
-         
-    // Function to handle save button click
-    const handleSaveButtonClick =  () => {
-        updateItinerary(itineraryId, itinerary.name, itinerary.destination, Number(itinerary.trip_duration), itinerary.itinerary, itinerary.published)
-    }
-
-    // Function to handle delete button click
-    const handleDeleteButtonClick =  () => {
-        Alert.fire({
-            title: `Delete ${itinerary.name}?`,
-            icon: 'warning',
-            text:'Are you sure you want to delete this trip?',
-            showCancelButton: true,
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#3085d6",
-            confirmButtonText: "Delete Trip",
-            cancelButtonText: "Cancel"
-        }).then((result) => {
-            if (result.value) {
-                deleteItinerary(itineraryId) 
-                Alert.fire("Deleted!", "Your trip has been deleted.", "success");
-                props.history.push("/");
-            }
-        });
-    }
         
 
     // Function to handle clicking on event in agenda
@@ -655,7 +543,7 @@ function ViewItinerary(props) {
                                         color="primary"
                                         className={buttonClassname}
                                         disabled={loading}
-                                        onClick={handleSaveButtonClick}
+                                        
                                         startIcon={<SaveIcon />}
                                         style={{marginRight: 12}}
                                         >
@@ -717,7 +605,9 @@ function ViewItinerary(props) {
                             
                     <Box width={1 / 4} position="absolute" right={24}>
                         <Paper style={{height: '80vh'}}>
-                            <Comments/>
+                            
+                                <Comments/>
+
                         </Paper>    
                     </Box>
                 

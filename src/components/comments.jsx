@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react'
 import axios from "axios";
 import { toast } from "react-toastify";
 import DecodeToken from "../services/token_decoder";
-import { Divider, Grid, Paper } from "@material-ui/core";
+import { Divider, Grid, Paper, Box } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
@@ -43,30 +43,38 @@ function Comments(props){
  
     //Function to handle the Edit comment - When user presses the Edit button
     const handleEdit = (comment, index) => {
-        setIsEdit((v) => {
-            v[index] = !v[index]
-            return v;
-        });
+        // setIsEdit((v) => {
+        //     v[index] = !v[index]
+        //     return v;
+        // });
         setEditableComment(comment.comments)
     };
 
     //It is must to pass the iternrary ID in the route so that this component can be used
-    const itineraryID = useParams().itineraryid;
-
+    const itineraryID = useParams().id;
+    const authToken = Cookies.get("auth_token")
     const headers = {
-        auth_token: Cookies.get("auth_token"),
+        auth_token: authToken
     };
 
     //UseEffect Hook
     useEffect(()=>{
         setIsLoading(true);
         
+       
+    
+        getUserData();
+        getComments();
+
+    }, [])
+
          //Fetching the data of the logedIn User
-        const getUserData = async () =>{
+         const getUserData = async () =>{
             const verifiedUserID = DecodeToken(Cookies.get("auth_token"));
+            console.log(verifiedUserID)
             await axios
             .get(
-              `https://tritch-be.herokuapp.com/api/v1/show/${verifiedUserID}`,
+              `https://tritch-be.herokuapp.com/api/v1/users/show/${verifiedUserID}`,
               { headers: headers }
             )
             .then((response) => {
@@ -79,33 +87,24 @@ function Comments(props){
               toast(err.response.data);
             });
         }
-        //Fetching the comments of the particular itenarary
+        //Fetching the comments of the particular itinerary
         const getComments = async () => {
-        await axios
-        .get(`https://tritch-be.herokuapp.com/api/v1/comments/itnerary/${itineraryID}`,  { headers: headers })
-        .then((res) => {
-            console.log(res.data)
-            let temp = [];
-            for(let i = 0; i<res.data.length; i++)
-                temp.push(false);
-
-            setIsEdit(temp)
-           
-            setComments(res.data)
-            setIsLoading(false);
-        })
-        .catch((err) => {
-            if (!err.response.data) {
-                toast(`server error...`);
+            let commentsData
+            try{
+                commentsData = await axios
+                .get(`https://tritch-be.herokuapp.com/api/v1/comments/itinerary/${itineraryID}`,  { headers: headers })
             }
-            toast(err.response.data);
+            catch(err){
+                toast(err.response.data);
+            }
+            console.log(commentsData)
+            if(commentsData){
+                setComments(commentsData.data)
+                
+            }
             setIsLoading(false);
-        })
+      
         }
-        getUserData();
-        getComments();
-
-    }, [])
 
     //Function to handle the cancel button - When User wants to cancel the edited comment to its previous state
     const handleCancel = (index) => {
@@ -170,18 +169,18 @@ function Comments(props){
         
         tempComments.push({comments: postComment, user: {_id: userData._id, firstName: userData.firstName, lastName: userData.lastName} })
         setComments(tempComments)
-        setPostComment('');
-
-        await axios
+        
+        try{
+            await axios
         .post(`https://tritch-be.herokuapp.com/api/v1/comments/${userData._id}/itinerary/${itineraryID}/new`, {comments: postComment}, { headers: headers })
-        .then(() => console.log("Comment Created"))
-        .catch((err) => {
-            if (!err.response.data) {
-                toast(`server error...`);
-            }
-            toast(err.response.data);
-            setIsLoading(false);
-        })
+        }
+        catch(err) {
+            toast(err);
+        }
+        console.log("Comment Created")
+      setPostComment('')
+
+        
     }
 
     //Function to handle the text change
@@ -204,11 +203,12 @@ function Comments(props){
 
     return(
     <div className={classes.root}>
+        <Box style={{maxHeight: '60vh', overflow: 'auto'}}  display="block" p={1} m={1} textAlign='center'>
         {comments.map((comment, i) => {
             let orignalTime = comment.createdAt;
 
             return (
-                <Paper key={i} className={classes.paperStyle}>
+                <Box>
                     <Grid container wrap="nowrap" spacing={2}>
                     {!isEdit[i] ? <Grid item xs zeroMinWidth>
                                     <h4 className={classes.name}>{comment.user.firstName + " " + comment.user.lastName}</h4>
@@ -225,6 +225,7 @@ function Comments(props){
                                         </p>
                                     }
                                 </Grid> 
+                               
                             : 
                         <div style={{display: "flex", flexDirection: "column", width: "100%"}}>
                             <TextField
@@ -241,37 +242,20 @@ function Comments(props){
                                     <Button size="small" color="secondary"  onClick={() => handleCancel(i)}>Cancel</Button>
                             </p>
                         </div>
+                        
+                         
                     }
+                     
+                   
                     </Grid>
-                    <Divider variant="fullWidth" style={{ margin: "20px 0" }} />
-                    {comments.length-1 === i && 
-                        <div style={{display: 'flex', flexDirection: "column", alignItems: "flex-end"}}>
-                        <TextField
-                            id="outlined-multiline-static"
-                            label="Post your comment"
-                            multiline
-                            rows={2}
-                            variant="outlined"
-                            fullWidth
-                            value={postComment}
-                            onChange={handleChangePostComment}
-                        />
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            className={classes.button}
-                            endIcon={<SendIcon/>}
-                            onClick = {handlePost}
-                            disabled = {postComment.length === 0 || postComment.length >= 200 ? true : false}
-                        >
-                            POST
-                        </Button>
-                    </div>
-                    }
-              </Paper>
+                     <Divider variant="fullWidth" style={{ margin: "20px 0" }} />
+                </Box>
+     
             )
+
         })}
-        {comments.length === 0 ? 
+        </Box>
+   
         <div style={{display: 'flex', flexDirection: "column", alignItems: "flex-end"}}>
         <TextField
             id="outlined-multiline-static"
@@ -294,9 +278,7 @@ function Comments(props){
             POST
         </Button>
     </div>
-    :
-    <></>
-    }
+
     </div>
     )
 }
