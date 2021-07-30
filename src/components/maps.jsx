@@ -7,7 +7,9 @@ import { ListItemAvatar } from '@material-ui/core';
 const containerStyle = {
   width: '100%',
   height: '100%',
-  position: 'absolute',
+ position:'absolute',
+// display: "flex"
+// zIndex:"-1"
 
 };
 

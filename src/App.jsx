@@ -15,7 +15,7 @@ import ProtectedRoute from "./components/protected_routes";
 import GuestRoute from "./components/guest_route";
 import EditItinerary from "./components/pages/edit_itinerary";
 import TripPlanner from "./components/pages/trip_planner";
-import Trips from "./components/pages/trips";
+
 import { createTheme, ThemeProvider } from "@material-ui/core/styles";
 import Comments from "./components/comments";
 import Follow from "./components/follows";
@@ -120,8 +120,7 @@ function App() {
               component={Bucketlist}
             />
             <ProtectedRoute path="/users/bucketlist/:itinerariesid/add" />
-            <ProtectedRoute path="/trips/:userid" component={Trips} />
-            <ProtectedRoute path="/trips/:" component={Trips} />
+     
           </Switch>
           <Box mt={5}>
             <Copyright />

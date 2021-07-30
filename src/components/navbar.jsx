@@ -75,7 +75,7 @@ function Navbar(props) {
 
   return (
     <div className={classes.root}>
-      <AppBar style={{ background: "#9c27b0" }} position="static">
+      <AppBar style={{ background: "#9c27b0" }} position="relative" >
         <Toolbar>
           <IconButton
             edge="start"

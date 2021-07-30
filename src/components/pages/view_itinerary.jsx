@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from "react"
-import { withRouter, Redirect } from "react-router";
+import { Link, withRouter } from "react-router-dom";
 import debounce from "lodash.debounce"
 import "./view_itinerary.css"
 import { Helmet } from 'react-helmet'
@@ -9,6 +9,8 @@ import clsx from 'clsx'
 import itineraryAPI from "../../services/itinerary"
 import attractionsAPI from "../../services/attractions"
 import citiesAPI from "../../services/cities"
+import usersAPI from "../../services/users"
+import DecodeToken from "../../services/token_decoder";
 import FullCalendar, { parseClassNames } from "@fullcalendar/react"
 import timeGridPlugin from "@fullcalendar/timegrid"
 import listPlugin from '@fullcalendar/list'
@@ -41,6 +43,7 @@ import CheckIcon from '@material-ui/icons/Check'
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import DeleteIcon from '@material-ui/icons/Delete'
 import Rating from '@material-ui/lab/Rating'
+import EditIcon from '@material-ui/icons/Edit';
 import { positions } from '@material-ui/system';
 import { sizing } from '@material-ui/system';
 import Avatar from '@material-ui/core/Avatar';
@@ -49,6 +52,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import moment from 'moment'
 import Comments from "../comments";
 import Maps from "../maps";
+import BucketlistButtons from "../bucketlist_buttons";
 
 
 
@@ -106,7 +110,15 @@ function ViewItinerary(props) {
         })
     const [destinationLoaded, setDestinationLoaded]  = useState(false)
 
+    // Editable
+    const [editable, setEditable] = useState(false)
 
+    const authToken = Cookies.get("auth_token")
+    const headers = {
+        auth_token: authToken
+    };
+    let verifiedUserID = DecodeToken(Cookies.get("auth_token"));
+    let userData
 
 
 
@@ -118,14 +130,21 @@ function ViewItinerary(props) {
     
     useEffect(async() => {
         let theItinerary
+        
+        try {
+            userData = await usersAPI.getUser(verifiedUserID)
+        }
+        catch (error) {
+            console.log(error)
+        }
         try {
             await getItinerary(itineraryId)
         } catch (err) {
             console.log(err)
             
         }
-        
        
+       console.log(`userdata: ${verifiedUserID}`)
     },[])
 
     
@@ -155,12 +174,13 @@ function ViewItinerary(props) {
     
     },[destinationLoaded])
 
+   
 
+  
     
     // <<<<< Functions >>>>>
 
-  
-
+   
     // Function to retrieve itinerary by id and retrieve attractions based on itinerary location
 
     const getItinerary = async (id) => {
@@ -175,6 +195,10 @@ function ViewItinerary(props) {
         }
         catch (error) {
             console.log(error)
+        }
+        
+        if (subjectItinerary.data.creator[0]._id === verifiedUserID ){
+            setEditable(true)
         }
         getAttractions(subjectItinerary.data.destination)
     }
@@ -423,17 +447,15 @@ function ViewItinerary(props) {
     return(
         
         <div className={classes.root}>
-            <Box mt={-3}>
+            <Box mt={-5} >
                 {center
                     ? <Maps center = {center} attractions = {attractions}/>
                     : <CircularProgress/>
                  }
             </Box>
-            <Box  mt={2}>
-                ..   
-            </Box>
+           <Box height={2}/>
 
-            <Box mt={2}>
+            <Box mt={5}>
                 <Container maxWidth="xl" mt={2} classes={{root: classes.panels}}>
                     <Helmet>
                         <title>Itinerary</title>
@@ -534,8 +556,8 @@ function ViewItinerary(props) {
                                 
                             </FormGroup>
                         </Box>
-                        
-                        <Box justifyContent="flex-end">
+                        {editable
+                            ? <Box justifyContent="flex-end">
                             <FormGroup aria-label="save" row>
                                 <div className={classes.wrapper}>
                                     <Button
@@ -543,17 +565,25 @@ function ViewItinerary(props) {
                                         color="primary"
                                         className={buttonClassname}
                                         disabled={loading}
-                                        
-                                        startIcon={<SaveIcon />}
+                                        component={Link} 
+                                        to={`/itinerary/edit/${itineraryId}`}
+                                        startIcon={<EditIcon />}
                                         style={{marginRight: 12}}
                                         >
-                                        Save
+                                        Edit
                                     </Button>
                                     {loading && <CircularProgress size={24} className={classes.buttonProgress} />}
                                 </div>
                         
                             </FormGroup>
-                        </Box>                    
+                        </Box>                
+                            : <BucketlistButtons
+                            userId={verifiedUserID}
+                            itineraryId={itineraryId}
+                            header={headers}
+                            />
+                        }
+                            
                     </Paper>
                             
                     <Box width={1 / 4} position="absolute" >
@@ -605,7 +635,11 @@ function ViewItinerary(props) {
                             
                     <Box width={1 / 4} position="absolute" right={24}>
                         <Paper style={{height: '80vh'}}>
-                            
+                        <Box display="block" p={1} m={1} >
+                                <Typography variant="overline">
+                                    Comments
+                                </Typography>
+                            </Box>
                                 <Comments/>
 
                         </Paper>    

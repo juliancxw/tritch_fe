@@ -6,9 +6,11 @@ import { Helmet } from 'react-helmet'
 import { useParams } from "react-router-dom"
 import Cookies from "js-cookie";
 import clsx from 'clsx'
+import DecodeToken from "../../services/token_decoder";
 import itineraryAPI from "../../services/itinerary"
 import attractionsAPI from "../../services/attractions"
 import citiesAPI from "../../services/cities"
+import usersAPI from "../../services/users"
 import FullCalendar, { parseClassNames } from "@fullcalendar/react"
 import timeGridPlugin from "@fullcalendar/timegrid"
 import listPlugin from '@fullcalendar/list'
@@ -48,8 +50,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import moment from 'moment'
 import Maps from "../maps";
-
-
+import { toast } from "react-toastify";
 
 
 
@@ -102,6 +103,16 @@ function Itinerary(props) {
         lng: 114.15769
         })
     const [destinationLoaded, setDestinationLoaded]  = useState(false)
+    
+    // Editable
+    const [editable, setEditable] = useState(false)
+
+    const authToken = Cookies.get("auth_token")
+    const headers = {
+        auth_token: authToken
+    };
+    let verifiedUserID
+    let userData
 
 
   
@@ -112,6 +123,13 @@ function Itinerary(props) {
     
     useEffect(async() => {
         let theItinerary
+        verifiedUserID = DecodeToken(Cookies.get("auth_token"));
+        try {
+            userData = await usersAPI.getUser(verifiedUserID)
+        }
+        catch (error) {
+            console.log(error)
+        }
         try {
             await getItinerary(itineraryId)
         } catch (err) {
@@ -240,6 +258,10 @@ function Itinerary(props) {
         }
         catch (error) {
             console.log(error)
+        }
+        if (subjectItinerary.data.creator[0]._id !== verifiedUserID ){
+            toast("Not yours! Don't any how touch! View only")
+            props.history.push(`/itinerary/view/${itineraryId}`)
         }
         getAttractions(subjectItinerary.data.destination)
     }
