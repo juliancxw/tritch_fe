@@ -235,7 +235,7 @@ export default function TripPlanner(props) {
             let verifiedUserID = decodeToken(authToken);
             let itineraryId
             try {
-                itineraryId = await itineraryAPI.createItinerary(searchedCity.slug, verifiedUserID)
+                itineraryId = await itineraryAPI.createItinerary(searchedCity.slug, verifiedUserID, searchedCity.image)
             }
             catch (error) {
                 console.log(error)

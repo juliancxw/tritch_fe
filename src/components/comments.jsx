@@ -65,10 +65,9 @@ function Comments(props) {
     const getUserData = async () => {
       const verifiedUserID = DecodeToken(Cookies.get("auth_token"));
       await axios
-        .get(
-          `https://tritch-be.herokuapp.com/api/v1/users/show/${verifiedUserID}`,
-          { headers: headers }
-        )
+        .get(`https://tritch-be.herokuapp.com/api/v1/show/${verifiedUserID}`, {
+          headers: headers,
+        })
         .then((response) => {
           setUserData(response.data);
         })
@@ -79,23 +78,168 @@ function Comments(props) {
           toast(err.response.data);
         });
     };
-
     //Fetching the comments of the particular itenarary
     const getComments = async () => {
       await axios
-        .get(`http://localhost:8000/api/v1/comments/itnerary/${itineraryID}`, {
-          headers: headers,
-        })
+        .get(
+          `https://tritch-be.herokuapp.com/api/v1/comments/itnerary/${itineraryID}`,
+          { headers: headers }
+        )
         .then((res) => {
           console.log(res.data);
           let temp = [];
           for (let i = 0; i < res.data.length; i++) temp.push(false);
 
-          setIsEdit(temp);
+          //Fetching the data of the logedIn User
+          const getUserData = async () => {
+            const verifiedUserID = DecodeToken(Cookies.get("auth_token"));
+            await axios
+              .get(
+                `https://tritch-be.herokuapp.com/api/v1/users/show/${verifiedUserID}`,
+                { headers: headers }
+              )
+              .then((response) => {
+                setUserData(response.data);
+              })
+              .catch((err) => {
+                if (!err.response.data) {
+                  toast(`server error...`);
+                }
+                toast(err.response.data);
+              });
+          };
 
-          setComments(res.data);
-          setIsLoading(false);
-        })
+          //Fetching the comments of the particular itenarary
+          const getComments = async () => {
+            await axios
+              .get(
+                `http://localhost:8000/api/v1/comments/itnerary/${itineraryID}`,
+                {
+                  headers: headers,
+                }
+              )
+              .then((res) => {
+                console.log(res.data);
+                let temp = [];
+                for (let i = 0; i < res.data.length; i++) temp.push(false);
+
+                setIsEdit(temp);
+
+                setComments(res.data);
+                setIsLoading(false);
+              })
+              .catch((err) => {
+                if (!err.response.data) {
+                  toast(`server error...`);
+                }
+                toast(err.response.data);
+                setIsLoading(false);
+              });
+          };
+          getUserData();
+          getComments();
+        }, []);
+
+      //Function to handle the cancel button - When User wants to cancel the edited comment to its previous state
+      const handleCancel = (index) => {
+        setIsEdit((v) => {
+          v[index] = !v[index];
+          return v;
+        });
+        setEditableComment("");
+      };
+
+      //Function to handle the save button - When User wants to save the edited comment
+      const handleSave = async (commentparam, index) => {
+        setIsEdit((v) => {
+          v[index] = !v[index];
+          return v;
+        });
+        setEditableComment("");
+
+        let indx = -1;
+        for (let i = 0; i < comments.length; i++) {
+          if (comments[i]._id === commentparam._id) indx = i;
+        }
+
+        let tempComment = [...comments];
+        tempComment[indx].comments = EditableComment;
+        setComments(tempComment);
+
+        await axios
+          .put(
+            `https://tritch-be.herokuapp.com/api/v1/comments/${commentparam._id}`,
+            { comments: EditableComment },
+            { headers: headers }
+          )
+          .then(() => console.log("Comment Updated"))
+          .catch((err) => {
+            if (!err.response.data) {
+              toast(`server error...`);
+            }
+            toast(err.response.data);
+            setIsLoading(false);
+          });
+      };
+
+      //Function to delete the comment
+      const handleDelete = async (comment, index) => {
+        let tempComments = [...comments];
+        tempComments.splice(index, 1);
+        setComments(tempComments);
+
+        await axios
+          .put(
+            `https://tritch-be.herokuapp.com/api/v1/comments/${commentparam._id}`,
+            { comments: EditableComment },
+            { headers: headers }
+          )
+          .then(() => console.log("Comment Updated"))
+          .catch((err) => {
+            if (!err.response.data) {
+              toast(`server error...`);
+            }
+            toast(err.response.data);
+            setIsLoading(false);
+          });
+      };
+
+      //Function to handle the posting of comment
+      const handlePost = async () => {
+        let tempComments = [...comments];
+
+        tempComments.push({
+          comments: postComment,
+          user: {
+            _id: userData._id,
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+          },
+        });
+        setComments(tempComments);
+        setPostComment("");
+        await axios
+          .delete(
+            `https://tritch-be.herokuapp.com/api/v1/comments/${comment._id}`,
+            { headers: headers }
+          )
+          .then(() => console.log("comment Deleted"))
+          .catch((err) => {
+            if (!err.response.data) {
+              toast(`server error...`);
+            }
+            toast(err.response.data);
+            setIsLoading(false);
+          });
+      };
+
+      await axios
+        .post(
+          `https://tritch-be.herokuapp.com/api/v1/comments/${userData._id}/itinerary/${itineraryID}/new`,
+          { comments: postComment },
+          { headers: headers }
+        )
+        .then(() => console.log("Comment Created"))
         .catch((err) => {
           if (!err.response.data) {
             toast(`server error...`);
@@ -104,90 +248,11 @@ function Comments(props) {
           setIsLoading(false);
         });
     };
-    getUserData();
-    getComments();
-  }, []);
 
-  //Function to handle the cancel button - When User wants to cancel the edited comment to its previous state
-  const handleCancel = (index) => {
-    setIsEdit((v) => {
-      v[index] = !v[index];
-      return v;
-    });
-    setEditableComment("");
-  };
-
-  //Function to handle the save button - When User wants to save the edited comment
-  const handleSave = async (commentparam, index) => {
-    setIsEdit((v) => {
-      v[index] = !v[index];
-      return v;
-    });
-    setEditableComment("");
-
-    let indx = -1;
-    for (let i = 0; i < comments.length; i++) {
-      if (comments[i]._id === commentparam._id) indx = i;
-    }
-
-    let tempComment = [...comments];
-    tempComment[indx].comments = EditableComment;
-    setComments(tempComment);
-
-    await axios
-      .put(
-        `https://tritch-be.herokuapp.com/api/v1/comments/${commentparam._id}`,
-        { comments: EditableComment },
-        { headers: headers }
-      )
-      .then(() => console.log("Comment Updated"))
-      .catch((err) => {
-        if (!err.response.data) {
-          toast(`server error...`);
-        }
-        toast(err.response.data);
-        setIsLoading(false);
-      });
-  };
-
-  //Function to delete the comment
-  const handleDelete = async (comment, index) => {
-    let tempComments = [...comments];
-    tempComments.splice(index, 1);
-    setComments(tempComments);
-
-    await axios
-      .delete(
-        `https://tritch-be.herokuapp.com/api/v1/comments/${comment._id}`,
-        {
-          headers: headers,
-        }
-      )
-      .then(() => console.log("comment Deleted"))
-      .catch((err) => {
-        if (!err.response.data) {
-          toast(`server error...`);
-        }
-        toast(err.response.data);
-        setIsLoading(false);
-      });
-  };
-
-  //Function to handle the posting of comment
-  const handlePost = async () => {
-    let tempComments = [...comments];
-
-    tempComments.push({
-      comments: postComment,
-      user: {
-        _id: userData._id,
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-      },
-    });
-    setComments(tempComments);
-    setPostComment("");
-
+    //Function to handle the text change
+    const handleChange = (event) => {
+      setEditableComment(event.target.value);
+    };
     await axios
       .post(
         `https://tritch-be.herokuapp.com/api/v1/comments/${userData._id}/itinerary/${itineraryID}/new`,
@@ -202,12 +267,7 @@ function Comments(props) {
         toast(err.response.data);
         setIsLoading(false);
       });
-  };
-
-  //Function to handle the text change
-  const handleChange = (event) => {
-    setEditableComment(event.target.value);
-  };
+  });
 
   //Function to handle the text change of new comment
   const handleChangePostComment = (event) => {
