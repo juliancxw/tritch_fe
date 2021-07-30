@@ -19,6 +19,7 @@ import Comments from "./components/comments";
 import Follow from "./components/follows";
 import UserProfile from "./components/pages/profile";
 import Discover from "./components/pages/discover";
+import ViewItinerary from "./components/pages/view_itinerary";
 
 import "./App.css";
 import Bucketlist from "./components/pages/bucketlist";
@@ -50,7 +51,7 @@ function App() {
           <Route path="/discover/" component={Discover} />
           <GuestRoute path="/users/register" component={SignUp} />
           <GuestRoute path="/users/login" component={SignIn} />
-          <ProtectedRoute path="/itinerary/view/:id" component={EditItinerary} />
+          <ProtectedRoute path="/itinerary/view/:id" component={ViewItinerary} />
           <ProtectedRoute path="/itinerary/edit/:id" component={EditItinerary} />
           <ProtectedRoute path="/tripplanner" component={TripPlanner} />
           
