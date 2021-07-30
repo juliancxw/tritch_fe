@@ -114,7 +114,7 @@ function UserItineraries() {
               color="textSecondary"
               paragraph
             >
-              Yay Yay Yay Yay Yay
+              yay travel
             </Typography>
           </Container>
         </div>

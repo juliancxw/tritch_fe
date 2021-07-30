@@ -75,7 +75,7 @@ function Navbar(props) {
 
   return (
     <div className={classes.root}>
-      <AppBar style={{ background: "#9c27b0" }} position="relative" >
+      <AppBar style={{ background: "#9c27b0" }} position="relative">
         <Toolbar>
           <IconButton
             edge="start"
@@ -110,11 +110,9 @@ function Navbar(props) {
                 aria-haspopup="true"
                 onClick={handleToggle}
               >
-                <Avatar
-                  alt="Remy Sharp"
-                  src="/static/images/avatar/1.jpg"
-                  className={classes.large}
-                />
+                <Avatar alt="Remy Sharp" className={classes.large}>
+                  Me
+                </Avatar>
               </Button>
               <Popper
                 open={open}
