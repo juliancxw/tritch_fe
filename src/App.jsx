@@ -67,7 +67,7 @@ function App() {
       }
     }
     getLoggedInUserDetails();
-  }, [loggedInUserId]);
+  }, []);
 
   console.log(loggedInUserDetails);
 

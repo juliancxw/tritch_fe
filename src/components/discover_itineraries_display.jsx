@@ -15,6 +15,7 @@ import {
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import decodeToken from "../services/token_decoder";
+import { toast } from "react-toastify";
 
 const useStyles = makeStyles((theme) => ({
   icon: {
@@ -110,13 +111,19 @@ function DiscoverItinerariesDisplay(props) {
     axios
       .post(
         "https://tritch-be.herokuapp.com/api/v1/bucketlist/add",
-        { userID: verifiedUserID, itinerariesID: itineraryId },
+        {
+          userID: verifiedUserID,
+          itinerariesID: itineraryId,
+          been_there: false,
+        },
         { headers: headers }
       )
       .then((response) => {
         console.log(response.data);
+        toast("Added to bucketlist!");
       })
       .catch((err) => {
+        toast(err.response.data);
         console.log(err);
       });
   }
