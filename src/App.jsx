@@ -46,8 +46,7 @@ function App() {
           {/* to remove later*/}
           <Route exact path="/testcomment/:itineraryid" component={Comments} /> 
           {/* /* to remove later*/}
-          <Route exact path="/testfollower/" component={Follow} />
-          <Route  path="/testfollower/:profileid" component={Follow} />
+          {/*<Route  path="/testfollower/:profileid" component={Follow} /> */}
           <Route path="/discover/" component={Discover} />
           <GuestRoute path="/users/register" component={SignUp} />
           <GuestRoute path="/users/login" component={SignIn} />
