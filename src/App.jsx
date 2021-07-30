@@ -22,6 +22,7 @@ import Follow from "./components/follows";
 import UserProfile from "./components/pages/profile";
 import Discover from "./components/pages/discover";
 import ViewItinerary from "./components/pages/view_itinerary";
+import UserItineraries from "./components/pages/user_itineraries";
 
 import "./App.css";
 import Bucketlist from "./components/pages/bucketlist";
@@ -112,7 +113,10 @@ function App() {
               path="/users/profile/:userid"
               component={UserProfile}
             />
-            <ProtectedRoute path="/users/itineraries" />
+            <ProtectedRoute
+              path="/users/itineraries"
+              component={UserItineraries}
+            />
             <ProtectedRoute path="/users/itineraries/:userid" />
             <ProtectedRoute
               exact

@@ -84,8 +84,6 @@ function DiscoverItinerariesDisplay(props) {
       });
   }, []);
 
-  // console.log(userBucketlist);
-
   useEffect(() => {
     // call backend to get all itineraries
     axios
