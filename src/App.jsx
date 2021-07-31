@@ -1,7 +1,5 @@
 import React from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-import axios from "axios";
-import Cookies from "js-cookie";
 
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -26,8 +24,6 @@ import UserItineraries from "./components/pages/user_itineraries";
 
 import "./App.css";
 import Bucketlist from "./components/pages/bucketlist";
-import decodeToken from "./services/token_decoder";
-import { useEffect } from "react";
 
 const theme = createTheme({
   palette: {
@@ -41,37 +37,6 @@ const theme = createTheme({
 });
 
 function App() {
-  const authToken = Cookies.get("auth_token");
-  const loggedInUserId = decodeToken(authToken);
-  let loggedInUserDetails;
-
-  const headers = {
-    headers: authToken,
-  };
-
-  useEffect(() => {
-    async function getLoggedInUserDetails() {
-      if (!loggedInUserId) {
-        return;
-      }
-
-      try {
-        loggedInUserDetails = await axios.get(
-          `https://tritch-be.herokuapp.com/api/v1/users/show/${loggedInUserId}`,
-          {
-            headers: headers,
-          }
-        );
-      } catch (err) {
-        toast(err.response.data);
-        console.log(err);
-      }
-    }
-    getLoggedInUserDetails();
-  }, []);
-
-  console.log(loggedInUserDetails);
-
   return (
     <ThemeProvider theme={theme}>
       <Router>
@@ -124,7 +89,6 @@ function App() {
               component={Bucketlist}
             />
             <ProtectedRoute path="/users/bucketlist/:itinerariesid/add" />
-     
           </Switch>
           <Box mt={5}>
             <Copyright />
