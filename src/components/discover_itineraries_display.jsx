@@ -200,54 +200,58 @@ function DiscoverItinerariesDisplay(props) {
         <Container className={classes.cardGrid} maxWidth="md">
           {/* End hero unit */}
           <Grid container spacing={4}>
-            {allItineraries.map((item, index) => (
-              <Grid item key={index} xs={12} sm={6} md={4}>
-                <Card className={classes.card}>
-                  <CardMedia
-                    className={classes.cardMedia}
-                    image={item.image}
-                    title="Image title"
-                  />
-                  <CardContent className={classes.cardContent}>
-                    <Typography gutterBottom variant="h5">
-                      {item.name}
-                    </Typography>
-                    <Typography variant="subtitle1">
-                      Created By:{" "}
-                      <Link
-                        style={{ textDecoration: "none" }}
-                        to={`users/profile/${item.creator[0]._id}`}
+            {allItineraries.map((item, index) =>
+              item.published ? (
+                <Grid item key={index} xs={12} sm={6} md={4}>
+                  <Card className={classes.card}>
+                    <CardMedia
+                      className={classes.cardMedia}
+                      image={item.image}
+                      title="Image title"
+                    />
+                    <CardContent className={classes.cardContent}>
+                      <Typography gutterBottom variant="h5">
+                        {item.name}
+                      </Typography>
+                      <Typography variant="subtitle1">
+                        Created By:{" "}
+                        <Link
+                          style={{ textDecoration: "none" }}
+                          to={`users/profile/${item.creator[0]._id}`}
+                        >
+                          {item.creator[0].firstName}
+                        </Link>
+                      </Typography>
+                      <Typography variant="subtitle1">
+                        Trip Duration: {item.trip_duration} days
+                      </Typography>
+                    </CardContent>
+                    <CardActions>
+                      <Button
+                        component={Link}
+                        to={`/itinerary/view/${item._id}`}
+                        size="small"
+                        color="primary"
                       >
-                        {item.creator[0].firstName}
-                      </Link>
-                    </Typography>
-                    <Typography variant="subtitle1">
-                      Trip Duration: {item.trip_duration} days
-                    </Typography>
-                  </CardContent>
-                  <CardActions>
-                    <Button
-                      component={Link}
-                      to={`/itinerary/view/${item._id}`}
-                      size="small"
-                      color="primary"
-                    >
-                      View
-                    </Button>
+                        View
+                      </Button>
 
-                    <Button
-                      onClick={(e) => {
-                        addToBucketlist(e, item._id);
-                      }}
-                      size="small"
-                      color="primary"
-                    >
-                      Add to Bucketlist
-                    </Button>
-                  </CardActions>
-                </Card>
-              </Grid>
-            ))}
+                      <Button
+                        onClick={(e) => {
+                          addToBucketlist(e, item._id);
+                        }}
+                        size="small"
+                        color="primary"
+                      >
+                        Add to Bucketlist
+                      </Button>
+                    </CardActions>
+                  </Card>
+                </Grid>
+              ) : (
+                ""
+              )
+            )}
           </Grid>
         </Container>
       </main>

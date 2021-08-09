@@ -41,7 +41,7 @@ function App() {
     <ThemeProvider theme={theme}>
       <Router>
         <div className="App">
-          <Navbar userDetails={loggedInUserDetails} />
+          <Navbar />
           <Switch>
             <Route exact path="/" component={LandingPage} />
             {/* to remove later*/}
