@@ -4,6 +4,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
 import decodeToken from "../services/token_decoder";
+import Background from "../images/provence_france.jpeg";
 
 import { makeStyles } from "@material-ui/core/styles";
 import { Card, CardContent, CardActions, Button, Box } from "@material-ui/core";
@@ -13,10 +14,8 @@ const useStyles = makeStyles((theme) => ({
   root: {
     minWidth: 320,
     maxWidth: 450,
-  },
-  avatar: {
-    height: 80,
-    width: 80,
+    paddingBottom: 50,
+    marginBottom: 250,
   },
 }));
 
@@ -61,7 +60,15 @@ function UserDisplayCard() {
   console.log(user);
 
   return (
-    <Box display="flex" justifyContent="center" mt={4}>
+    <Box
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      minHeight="100vh"
+      minWidth="100vw"
+      mt={4}
+      style={{ background: `url(${Background})`, margin: "0" }}
+    >
       <Card className={classes.root}>
         <CardContent>
           <Follow />

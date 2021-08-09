@@ -51,7 +51,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function Follow(props) {
+function Follow() {
   const classes = useStyles();
   const [followers, setFollowers] = useState({ followers: [], following: [] });
 
@@ -117,7 +117,7 @@ function Follow(props) {
 
     try {
       followedByUser = await followingData.data.followers.find(
-        (x) => x.user._id == verifiedUserID
+        (x) => x.user._id === verifiedUserID
       );
     } catch (err) {
       console.log(err);
@@ -193,30 +193,36 @@ function Follow(props) {
         <Grid justifyContent="left" item xs zeroMinWidth>
           <div className={classes.header}>
             <h2 className={classes.nameHeading}>
-              {userProfileData.firstName + " " + userProfileData.lastName}
+              {userProfileData.firstName
+                ? userProfileData.firstName + " " + userProfileData.lastName
+                : "loading.."}
             </h2>
             {userData._id === profileID ? (
               <></>
             ) : (
               <div>
-                {isFollowed === false ? (
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    className={classes.button}
-                    onClick={handleFollow}
-                  >
-                    Follow
-                  </Button>
+                {userid ? (
+                  isFollowed === false ? (
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      className={classes.button}
+                      onClick={handleFollow}
+                    >
+                      Follow
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      className={classes.button}
+                      onClick={handleUnfollow}
+                    >
+                      Unfollow
+                    </Button>
+                  )
                 ) : (
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    className={classes.button}
-                    onClick={handleUnfollow}
-                  >
-                    Unfollow
-                  </Button>
+                  ""
                 )}
               </div>
             )}
